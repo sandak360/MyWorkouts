@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hybrid OS: Master</title>
+    <style>
+        :root { --primary: #8b5cf6; --cardio: #f43f5e; --rest: #10b981; --bg: #0f172a; --card: #1e293b; --text: #f1f5f9; --input-bg: #334155; }
+        body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding-bottom: 160px; }
+        
+        header { background: var(--card); padding: 15px; position: sticky; top: 0; z-index: 100; border-bottom: 1px solid #333; }
+        .top-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        h1 { margin: 0; font-size: 1.1rem; color: var(--primary); font-weight: 800; }
+        select { background: var(--input-bg); color: white; padding: 5px; border-radius: 5px; border: 1px solid #555; }
+        
+        .cycle-nav { display: flex; overflow-x: auto; gap: 5px; padding-bottom: 5px; }
+        .day-btn { background: var(--input-bg); color: #999; border: none; padding: 10px 15px; border-radius: 8px; white-space: nowrap; cursor: pointer; }
+        .day-btn.active { background: var(--primary); color: white; font-weight: bold; }
+        .day-btn.active-cardio { background: var(--cardio); color: white; }
+        .day-btn.active-rest { background: var(--rest); color: white; }
+
+        .container { padding: 15px; max-width: 600px; margin: 0 auto; }
+        
+        /* BANNERS */
+        .am-cardio { background: rgba(59, 130, 246, 0.15); border: 1px solid #3b82f6; color: #60a5fa; padding: 10px; border-radius: 8px; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; font-size: 0.9rem; }
+        .no-cardio { background: rgba(16, 185, 129, 0.1); border: 1px solid #10b981; color: #34d399; padding: 10px; border-radius: 8px; margin-bottom: 15px; font-size: 0.9rem; }
+
+        .exercise-card { background: var(--card); border-radius: 12px; padding: 15px; margin-bottom: 15px; border: 1px solid #333; }
+        .ex-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+        .ex-name { font-weight: bold; font-size: 1rem; color: var(--text); display: block; }
+        .ex-meta { font-size: 0.75rem; color: #94a3b8; margin-top: 2px; display: block; }
+        .ex-rest { background: #334155; color: #cbd5e1; padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; white-space: nowrap; }
+        
+        .set-grid { display: grid; grid-template-columns: 25px 1fr 1fr 1fr 25px 25px; gap: 5px; margin-bottom: 5px; align-items: center; }
+        .set-grid span { font-size: 0.7rem; color: #888; text-align: center; }
+        
+        input { background: var(--input-bg); border: 1px solid #444; color: white; padding: 8px 2px; width: 100%; text-align: center; border-radius: 5px; font-size: 0.9rem; }
+        .inp-check { height: 18px; width: 18px; cursor: pointer; }
+        .inp-done { accent-color: var(--rest); }
+        .inp-ds { accent-color: var(--cardio); } 
+        
+        .history { font-size: 0.75rem; color: #777; grid-column: 2/span 5; text-align: center; font-style: italic; margin-bottom: 2px; }
+        
+        .ex-note { width: 100%; background: rgba(0,0,0,0.2); border: 1px solid #444; color: #cbd5e1; padding: 8px; border-radius: 6px; font-family: inherit; font-size: 0.85rem; margin-top: 10px; resize: vertical; box-sizing: border-box; }
+
+        .btn-add { width: 100%; background: transparent; border: 1px dashed #555; color: #777; padding: 10px; margin-top: 5px; cursor: pointer; }
+        
+        /* Special Cards */
+        .info-card { background: rgba(255,255,255,0.05); padding: 20px; border-radius: 10px; text-align: center; border: 1px solid #444; }
+        .primer-card { border: 1px solid #eab308; background: rgba(234, 179, 8, 0.1); margin-bottom: 15px; padding: 10px; border-radius: 8px; }
+        .finisher-card { border: 1px solid #a855f7; background: rgba(168, 85, 247, 0.1); margin-bottom: 15px; padding: 10px; border-radius: 8px; }
+
+        .fab { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 400px; display: flex; flex-direction: column; gap: 10px; z-index: 200;}
+        .btn-save { width: 100%; background: var(--rest); color: white; border: none; padding: 15px; border-radius: 30px; font-weight: bold; font-size: 1rem; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
+        .save-status { text-align: center; color: #64748b; font-size: 0.75rem; margin-top: -5px; }
+        
+        .tools { text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #333; }
+        .btn-small { background: #333; color: #ccc; border: 1px solid #555; padding: 5px 10px; border-radius: 5px; cursor: pointer; margin: 0 5px; }
+
+        /* AI FEATURES */
+        .btn-coach { background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white; border: none; padding: 6px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 5px; }
+        .btn-warmup { width: 100%; background: rgba(255,255,255,0.05); color: #eab308; border: 1px dashed #eab308; padding: 10px; margin-bottom: 15px; border-radius: 8px; cursor: pointer; font-size: 0.9rem; }
+        
+        /* MODAL */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; display: none; justify-content: center; align-items: center; }
+        .modal { background: var(--card); width: 90%; max-width: 500px; height: 80%; border-radius: 12px; display: flex; flex-direction: column; overflow: hidden; border: 1px solid #444; }
+        .modal-header { padding: 15px; background: #111; border-bottom: 1px solid #333; display: flex; justify-content: space-between; align-items: center; }
+        .modal-body { flex: 1; padding: 15px; overflow-y: auto; font-size: 0.9rem; line-height: 1.5; }
+        .modal-footer { padding: 10px; border-top: 1px solid #333; display: flex; gap: 10px; }
+        .chat-input { flex: 1; background: #333; border: none; color: white; padding: 10px; border-radius: 20px; outline: none; }
+        .chat-send { background: var(--primary); color: white; border: none; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; }
+        .msg { margin-bottom: 10px; padding: 10px; border-radius: 8px; max-width: 80%; }
+        .msg-user { background: #334155; align-self: flex-end; margin-left: auto; }
+        .msg-ai { background: rgba(139, 92, 246, 0.2); border: 1px solid var(--primary); align-self: flex-start; }
+        .typing { font-style: italic; color: #888; font-size: 0.8rem; display: none; }
+
+        /* TOGGLE */
+        .switch-label { font-size: 0.9rem; color: #cbd5e1; display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 10px; }
+        .switch-input { width: 20px; height: 20px; accent-color: var(--primary); }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="top-row">
+        <h1>HYBRID MASTER</h1>
+        <button class="btn-coach" onclick="signIn()">🔑 Sign in</button>
+        <button class="btn-coach" onclick="openCoach()">✨ Coach</button>
+    </div>
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+        <select id="cycleSelect" onchange="render()"><option value="1">Cycle 1</option><option value="2">Cycle 2</option><option value="3">Cycle 3</option></select>
+    </div>
+    <div class="cycle-nav" id="nav"></div>
+</header>
+
+<div class="container" id="app"></div>
+
+<div class="container">
+    <div class="tools">
+        <p style="font-size:0.8rem; color:#666;">DATA TOOLS</p>
+        
+        <label class="switch-label">
+            <input type="checkbox" id="autoBackupToggle" class="switch-input" onchange="toggleAutoBackup()">
+            Download File on Manual Save
+        </label>
+
+        <button class="btn-small" onclick="manualExport()">⬇ Manual Backup</button>
+        <button class="btn-small" onclick="document.getElementById('imp').click()">⬆ Restore Data</button>
+        <button class="btn-small" onclick="clearKey()">🔑 Reset</button>
+        <input type="file" id="imp" style="display:none" onchange="importData(this)">
+    </div>
+</div>
+
+<div class="fab">
+    <button class="btn-save" onclick="save(false)">💾 SAVE PROGRESS</button>
+    <div class="save-status" id="saveStatus">Not signed in (local only)</div>
+</div>
+
+<div class="modal-overlay" id="coachModal">
+    <div class="modal">
+        <div class="modal-header">
+            <span style="font-weight:bold;">✨ AI Coach</span>
+            <button onclick="closeModal('coachModal')" style="background:none; border:none; color:#888; font-size:1.2rem;">&times;</button>
+        </div>
+        <div class="modal-body" id="chatBody">
+            <div class="msg msg-ai">Ready. Ask me about form, nutrition, or today's plan.</div>
+        </div>
+        <div class="typing" id="typingIndicator">Coach is thinking...</div>
+        <div class="modal-footer">
+            <input type="text" class="chat-input" id="chatInput" placeholder="Ask a question...">
+            <button class="chat-send" onclick="sendMessage()">➤</button>
+        </div>
+    </div>
+</div>
+
+<script type="module">
+
+    // --- FIREBASE (Google Sign-In + Cloud Sync) ---
+    import { initializeApp as fbInitializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { getFirestore, doc, getDoc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    // Your Firebase Web App config (MyGym project)
+    const firebaseConfig = {
+      apiKey: "AIzaSyCli5Ua5bVOviYLZi_i_85Iu83cNKBKZb0",
+      authDomain: "mygym-3c53d.firebaseapp.com",
+      projectId: "mygym-3c53d",
+      storageBucket: "mygym-3c53d.firebasestorage.app",
+      messagingSenderId: "231488442106",
+      appId: "1:231488442106:web:4b7bb2dea98b6089bbc343"
+    };
+
+    const fbApp = fbInitializeApp(firebaseConfig);
+    const auth = getAuth(fbApp);
+    const db = getFirestore(fbApp);
+    const provider = new GoogleAuthProvider();
+
+    let userId = null;
+
+    async function signIn() {
+      try {
+        await signInWithPopup(auth, provider);
+      } catch (e) {
+        console.error("Sign-in failed", e);
+        alert("Sign-in failed: " + (e?.message || e));
+      }
+    }
+
+    async function cloudLoad() {
+      if(!userId) return false;
+      try {
+        const ref = doc(db, "users", userId, "programs", KEY);
+        const snap = await getDoc(ref);
+        if (snap.exists()) {
+          const payload = snap.data();
+          if (payload && payload.data) {
+            state.data = payload.data;
+            if(state.data._config) state.config = state.data._config;
+            const t = document.getElementById('autoBackupToggle');
+            if (t) t.checked = !!state.config.autoBackup;
+            return true;
+          }
+        }
+      } catch (e) {
+        console.error("Cloud load failed", e);
+      }
+      return false;
+    }
+
+    async function cloudSave() {
+      if(!userId) return; // not signed in yet
+      try {
+        const ref = doc(db, "users", userId, "programs", KEY);
+        await setDoc(ref, { data: state.data, updatedAt: serverTimestamp() }, { merge: true });
+      } catch (e) {
+        console.error("Cloud save failed", e);
+      }
+    }
+
+    const exercises = {
+        "1": { 
+            title: "Day 1: Chest & Tri", 
+            type: "lift", 
+            amCardio: "Zone 2 (30 min) - Bike/Incline Walk",
+            list: [
+            { id: "plyo_push", name: "Plyo Pushups", sets: 3, reps: "3-5", rest: "1m", note: "Primer." },
+            { id: "inc_bb", name: "Incline Barbell Press", sets: 4, reps: "8-12", rest: "2m", note: "Upper Chest Focus" }, 
+            { id: "flat_db", name: "Flat DB Press", sets: 4, reps: "8-10", rest: "3m" },      
+            { id: "mach_press", name: "Machine Press", sets: 3, reps: "8-12", rest: "2m" }, 
+            { id: "cab_fly", name: "Cable Flys (FST-7)", sets: 7, reps: "10-12", rest: "30s" },
+            { id: "skull", name: "Skullcrushers", sets: 4, reps: "8-12", rest: "2m", note: "Heavy Triceps." },
+            { id: "tri_rope", name: "Tricep Rope Pushdown", sets: 3, reps: "12-15", rest: "90s" },
+            { id: "chest_str", name: "Weighted Chest Stretch", sets: 2, reps: "45s Hold", rest: "1m" },
+            { id: "push_iso", name: "Push-Up Bottom Hold", sets: 2, reps: "Failure", rest: "1m", note: "Isometric Finisher" }
+        ]},
+        "2": { 
+            title: "Day 2: Back & Bi", 
+            type: "lift", 
+            amCardio: "Zone 2 (30 min) - Bike/Incline Walk",
+            list: [
+            { id: "lat_pull", name: "Lat Pulldown", sets: 4, reps: "10-15", rest: "2m" },
+            { id: "smith_row", name: "Smith Machine Bent Over Row", sets: 4, reps: "8-12", rest: "2m" }, 
+            { id: "seat_row", name: "Seated Cable Row", sets: 4, reps: "10-12", rest: "2m" },    
+            { id: "cab_pull", name: "Cable Pullover (FST-7)", sets: 7, reps: "12-15", rest: "45s" },
+            { id: "bb_curl", name: "Barbell Curls", sets: 4, reps: "8-12", rest: "2m" },
+            { id: "inc_curl", name: "Incline Seated DB Curl", sets: 3, reps: "10-12", rest: "90s" }, 
+            { id: "rev_curl", name: "Reverse EZ-Bar Curls", sets: 3, reps: "10-12", rest: "90s" },
+            { id: "dead_hang", name: "Dead Hang (Stretch)", sets: 3, reps: "Failure", rest: "1m" }
+        ]},
+        "3": { 
+            title: "Day 3: Quads", 
+            type: "lift", 
+            amCardio: null,
+            list: [
+            { id: "leg_ext", name: "Leg Extensions", sets: 4, reps: "15-20", rest: "2m", note: "Pre-Exhaust." },
+            { id: "hack", name: "Hack Squat", sets: 4, reps: "6-10", rest: "3m" },
+            { id: "leg_press", name: "Leg Press", sets: 3, reps: "10-15", rest: "3m" },
+            { id: "adductor", name: "Adductor Machine", sets: 3, reps: "12-15", rest: "90s" },
+            { id: "walk_lunge", name: "Walking Lunges", sets: 3, reps: "12/leg", rest: "2m", note: "Added per request." },
+            { id: "seat_calf", name: "Seated Calf (FST-7)", sets: 7, reps: "10-15", rest: "30s" },
+            { id: "farm_carry", name: "Farmers Carry", sets: 3, reps: "45-60s", rest: "2m", note: "Grip/Traps." },
+            { id: "wall_sit", name: "Wall Sit", sets: 2, reps: "Failure", rest: "1m", note: "Isometric Finisher" }
+        ]},
+        "4": { 
+            title: "Day 4: Shoulders/Upper", 
+            type: "lift", 
+            amCardio: "Zone 2 (30 min) - Bike/Incline Walk",
+            list: [
+            { id: "ohp", name: "Overhead Press", sets: 4, reps: "8-12", rest: "3m", note: "Seated." }, 
+            { id: "inc_db", name: "Incline DB Press", sets: 4, reps: "8-10", rest: "2m" }, 
+            { id: "dec_fly", name: "Decline Cable Fly", sets: 3, reps: "12-15", rest: "90s", note: "Costal Pecs." },
+            { id: "lat_raise", name: "DB Lateral Raise", sets: 4, reps: "12-20", rest: "90s" },
+            { id: "rev_pec", name: "Reverse Pec Deck", sets: 3, reps: "15-20", rest: "90s" },
+            { id: "cab_lat", name: "Cable Lateral (FST-7)", sets: 7, reps: "12-15", rest: "30s" },
+            { id: "crucifix", name: "Crucifix Hold (Lateral)", sets: 2, reps: "45s", rest: "1m", note: "Isometric Finisher" }
+        ]},
+        "5": { 
+            title: "Day 5: Hams & Back", 
+            type: "lift", 
+            amCardio: "Zone 2 (30 min) - Bike/Incline Walk",
+            list: [
+            { id: "stiff_dl", name: "Stiff-Leg Deadlift", sets: 4, reps: "8-10", rest: "3m", note: "Focus on stretch." },
+            { id: "leg_curl", name: "Lying Leg Curls", sets: 3, reps: "10-15", rest: "90s" },
+            { id: "seal_row", name: "Seal Row (Machine)", sets: 4, reps: "8-10", rest: "2m", note: "Chest Supported." },
+            { id: "sa_row", name: "Single Arm Row (Lats)", sets: 3, reps: "8-12", rest: "2m" },
+            { id: "glute_hyp", name: "Glute Hyperextension", sets: 3, reps: "12-15", rest: "90s" },
+            { id: "bridge", name: "Glute Bridge", sets: 4, reps: "10-12", rest: "2m" }, 
+            { id: "stand_calf", name: "Standing Calf", sets: 4, reps: "10-15", rest: "90s" },
+            { id: "hang_fail", name: "Dead Hang (Stretch)", sets: 3, reps: "Failure", rest: "1m" }
+        ]},
+        "6": { 
+            title: "Day 6: ARMS", 
+            type: "lift", 
+            amCardio: "Zone 2 (30 min) - Bike/Incline Walk",
+            list: [
+            { id: "cg_bench", name: "Close Grip Bench Press", sets: 4, reps: "6-10", rest: "2m", note: "Heavy Compound." }, 
+            { id: "preacher", name: "Preacher Curls", sets: 3, reps: "12-15", rest: "90s" },        
+            { id: "oh_cab", name: "Overhead Cable Ext", sets: 3, reps: "10-15", rest: "90s" },
+            { id: "hammer", name: "Hammer Curls", sets: 3, reps: "10-12", rest: "90s" },
+            { id: "tri_push", name: "Tricep Pushdown (FST-7)", sets: 7, reps: "12-15", rest: "30s" },
+            { id: "cab_curl", name: "Cable Curls (FST-7)", sets: 7, reps: "10-12", rest: "30s" },       
+            { id: "db_shrug", name: "DB Shrugs", sets: 4, reps: "15-20", rest: "90s" }, 
+            { id: "forearm", name: "Forearms", sets: 3, reps: "Failure", rest: "60s" },
+            { id: "spider_iso", name: "Spider Curl Iso Hold", sets: 2, reps: "30s", rest: "1m", note: "Isometric Finisher" }
+        ]},
+        "7": { title: "Day 7: REST", type: "rest", desc: "Mandatory Rest.", protocol: "Recover for HIIT." },
+        "8": { title: "Day 8: HIIT", type: "cardio", desc: "Empty the tank.", protocol: "4x4 Intervals (Zone 5)." }
+    };
+
+    const KEY = 'hybrid_master_v1'; 
+    let state = { cycle: 1, day: "1", config: { autoBackup: false }, data: {} };
+    let apiKey = localStorage.getItem('gemini_api_key') || "";
+
+    function init() {
+        // 1) Load local cache first (works offline / first paint)
+        const stored = localStorage.getItem(KEY);
+        if(stored) state.data = JSON.parse(stored);
+
+        // 2) Auth: when signed in, load from cloud and re-render
+        onAuthStateChanged(auth, async (user) => {
+            const status = document.getElementById('saveStatus');
+            if(user) {
+                userId = user.uid;
+                if(status) status.innerText = "Signed in. Syncing...";
+                const ok = await cloudLoad();
+                renderNav();
+                if(state.data.lastActiveDay) state.day = state.data.lastActiveDay;
+                render();
+                if(status) status.innerText = ok ? "Synced" : "Signed in. No cloud data yet";
+            } else {
+                userId = null;
+                if(status) status.innerText = "Not signed in (local only)";
+            }
+        });
+
+// Load Settings
+        if(state.data._config) state.config = state.data._config;
+        document.getElementById('autoBackupToggle').checked = state.config.autoBackup;
+
+        renderNav();
+        if(state.data.lastActiveDay) state.day = state.data.lastActiveDay;
+        render();
+
+        // START AUTO SAVE TIMER (Every 10 seconds)
+        setInterval(() => save(true), 10000); 
+    }
+
+    function renderNav() {
+        const nav = document.getElementById('nav');
+        nav.innerHTML = '';
+        for(let i=1; i<=8; i++) {
+            let b = document.createElement('button');
+            b.innerText = `Day ${i}`;
+            b.className = `day-btn ${i==8?'active-cardio':''} ${i==7?'active-rest':''}`;
+            // SAFETY FIX: Save before switching days
+            b.onclick = () => { save(true); state.day = i.toString(); render(); };
+            nav.appendChild(b);
+        }
+    }
+
+    function render() {
+        const app = document.getElementById('app');
+        app.innerHTML = '';
+        state.cycle = document.getElementById('cycleSelect').value;
+        
+        document.querySelectorAll('.day-btn').forEach(b => {
+            b.classList.remove('active');
+            if(b.innerText === `Day ${state.day}` && state.day < 7) b.classList.add('active');
+        });
+
+        const dayData = exercises[state.day];
+        
+        let h2 = document.createElement('h2');
+        h2.innerText = dayData.title;
+        h2.style.color = dayData.type === 'lift' ? 'var(--primary)' : (dayData.type==='rest'?'var(--rest)':'var(--cardio)');
+        app.appendChild(h2);
+
+        // AM Cardio Banner
+        if(dayData.amCardio) {
+            app.innerHTML += `<div class="am-cardio"><span>🚴</span> <strong>AM Cardio:</strong> ${dayData.amCardio}</div>`;
+        } else if (dayData.type === 'lift') {
+            app.innerHTML += `<div class="no-cardio"><span>🛑</span> <strong>No Cardio Today</strong> (Save Legs)</div>`;
+        }
+
+        if(dayData.type === 'lift') {
+            app.innerHTML += `<button class="btn-warmup" onclick="generateWarmup()">🔥 Generate Smart Warmup for ${dayData.title}</button>`;
+        }
+
+        if(dayData.type !== 'lift') {
+            app.innerHTML += `<div class="info-card">
+                <h3>${dayData.desc}</h3><hr style="border-color:#444">
+                <p>${dayData.protocol}</p>
+                <br><label><input type="checkbox" onchange="toggleDone(this)" ${getVal('done')?'checked':''}> Mark Complete</label>
+            </div>`;
+            return;
+        }
+
+        dayData.list.forEach((ex) => {
+            let setsHtml = `<div class="set-grid"><span>#</span><span>LBS</span><span>REPS</span><span>RPE</span><span>DS</span><span>✓</span></div>`;
+            const currentData = state.data[getID(ex.id)] || {};
+            const currentSets = currentData.sets || [];
+            const currentNote = currentData.note || '';
+            const count = currentSets.length || ex.sets;
+
+            for(let i=0; i<count; i++) {
+                let s = currentSets[i] || {};
+                let ghost = getGhost(ex.id, i);
+                if(ghost) setsHtml += `<div class="history">${ghost}</div>`;
+                setsHtml += `<div class="set-grid row" data-id="${ex.id}">
+                    <span>${i+1}</span>
+                    <input type="number" class="w" value="${s.w||''}" placeholder="-" oninput="save(true)">
+                    <input type="number" class="r" value="${s.r||''}" placeholder="-" oninput="save(true)">
+                    <input type="number" class="rpe" value="${s.rpe||''}" placeholder="-" oninput="save(true)">
+                    <input type="checkbox" class="inp-check inp-ds" ${s.ds?'checked':''} onchange="save(true)">
+                    <input type="checkbox" class="inp-check inp-done" ${s.done?'checked':''} onchange="save(true)">
+                </div>`;
+            }
+            
+            let cardClass = 'exercise-card';
+            if(ex.name.includes("Primer") || ex.id === 'plyo_push') cardClass = 'primer-card';
+            if(ex.name.includes("Stretch") || ex.name.includes("Hang") || ex.name.includes("Squeeze") || ex.name.includes("Chest Stretch") || ex.name.includes("Farmers") || ex.name.includes("Hold") || ex.name.includes("Iso")) cardClass = 'finisher-card';
+
+            let noteHtml = ex.note ? `<span class="ex-meta" style="color:#eab308">💡 ${ex.note}</span>` : '';
+
+            let div = document.createElement('div');
+            div.className = cardClass;
+            div.innerHTML = `
+            <div class="ex-header">
+                <div>
+                    <span class="ex-name">${ex.name}</span>
+                    <span class="ex-meta">${ex.reps} Reps</span>
+                    ${noteHtml}
+                </div>
+                <div class="ex-rest">⏳ ${ex.rest || '2m'}</div>
+            </div>
+            <div id="sets-${ex.id}">${setsHtml}</div>
+            <button class="btn-add" onclick="addSet('${ex.id}')">+ Add Set</button>
+            <textarea id="note-${ex.id}" class="ex-note" placeholder="Notes (e.g. seat height 4...)" oninput="save(true)">${currentNote}</textarea>`;
+            app.appendChild(div);
+        });
+    }
+
+    function addSet(id) {
+        const box = document.getElementById(`sets-${id}`);
+        const num = box.querySelectorAll('.row').length + 1;
+        box.insertAdjacentHTML('beforeend', `<div class="set-grid row" data-id="${id}">
+            <span>${num}</span><input type="number" class="w" oninput="save(true)"><input type="number" class="r" oninput="save(true)">
+            <input type="number" class="rpe" oninput="save(true)"><input type="checkbox" class="inp-check inp-ds" onchange="save(true)"><input type="checkbox" class="inp-check inp-done" onchange="save(true)">
+        </div>`);
+        save(true);
+    }
+
+    function getID(exID) { return `c${state.cycle}_${exID}`; }
+    
+    function getVal(exID) {
+        if(exID === 'done') return state.data[`c${state.cycle}_d${state.day}_done`];
+        return (state.data[getID(exID)] || {}).sets;
+    }
+
+    function getGhost(exID, setIdx) {
+        if(state.cycle == 1) return null;
+        const prevID = `c${state.cycle-1}_${exID}`;
+        const prevData = state.data[prevID];
+        if(!prevData || !prevData.sets[setIdx] || !prevData.sets[setIdx].w) return null;
+        return `C${state.cycle-1}: ${prevData.sets[setIdx].w} x ${prevData.sets[setIdx].r}`;
+    }
+
+    function toggleDone(el) {
+        state.data[`c${state.cycle}_d${state.day}_done`] = el.checked;
+        save(false);
+    }
+
+    function toggleAutoBackup() {
+        state.config.autoBackup = document.getElementById('autoBackupToggle').checked;
+        state.data._config = state.config;
+        localStorage.setItem(KEY, JSON.stringify(state.data));
+        cloudSave();
+    }
+
+    function manualExport() {
+        save(true); // FORCE SAVE before backup
+        exportData();
+    }
+
+    function save(isAuto = false) {
+        // Only scrape the DOM if we are on a lifting day
+        if(exercises[state.day].type === 'lift') {
+            exercises[state.day].list.forEach((ex) => {
+                const rows = document.querySelectorAll(`.row[data-id="${ex.id}"]`);
+                if(rows.length > 0) { // Only update if elements exist
+                    const sets = [];
+                    rows.forEach(r => {
+                        sets.push({
+                            w: r.querySelector('.w').value,
+                            r: r.querySelector('.r').value,
+                            rpe: r.querySelector('.rpe').value,
+                            ds: r.querySelector('.inp-ds').checked,
+                            done: r.querySelector('.inp-done').checked
+                        });
+                    });
+                    
+                    // SAVE NOTES
+                    const noteElement = document.getElementById(`note-${ex.id}`);
+                    const noteVal = noteElement ? noteElement.value : '';
+                    
+                    state.data[getID(ex.id)] = { sets: sets, note: noteVal };
+                }
+            });
+        }
+        state.data.lastActiveDay = state.day;
+        localStorage.setItem(KEY, JSON.stringify(state.data));
+        
+        // UI Updates
+        const status = document.getElementById('saveStatus');
+        const now = new Date();
+        const time = now.getHours() + ":" + String(now.getMinutes()).padStart(2, '0');
+
+        if(isAuto) {
+            status.innerText = `Auto-saved at ${time}`;
+        } else {
+            const btn = document.querySelector('.btn-save');
+            if(state.config.autoBackup) {
+                exportData();
+                btn.innerText = "✅ SAVED + DOWNLOADED";
+            } else {
+                btn.innerText = "✅ SAVED";
+            }
+            status.innerText = `Manual save at ${time}`;
+            setTimeout(() => document.querySelector('.btn-save').innerText = "💾 SAVE PROGRESS", 2000);
+        }
+    }
+
+    function exportData() {
+        // USE STATE DIRECTLY instead of reading LS again, to ensure latest capture
+        const blob = new Blob([JSON.stringify(state.data)], {type: "application/json"});
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = `hybrid_backup_${new Date().toISOString().slice(0,10)}.json`;
+        a.click();
+    }
+
+    function importData(input) {
+        const reader = new FileReader();
+        reader.onload = e => {
+            if(confirm("Overwrite current data?")) {
+                localStorage.setItem(KEY, e.target.result);
+                location.reload();
+            }
+        };
+        reader.readAsText(input.files[0]);
+    }
+
+    /* --- AI FEATURES --- */
+    function checkKey() {
+        if(!apiKey) {
+            apiKey = prompt("Enter Google Gemini API Key:");
+            if(apiKey) localStorage.setItem('gemini_api_key', apiKey);
+        }
+        return !!apiKey;
+    }
+
+    function clearKey() {
+        localStorage.removeItem('gemini_api_key');
+        alert("API Key cleared.");
+    }
+
+    function openCoach() { document.getElementById('coachModal').style.display = 'flex'; }
+    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
+    async function callGemini(prompt) {
+        if(!checkKey()) return "No API Key provided.";
+        try {
+            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`, {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+            });
+            const data = await response.json();
+            return data.candidates[0].content.parts[0].text;
+        } catch (error) { return "Error calling Gemini API."; }
+    }
+
+    async function sendMessage() {
+        const input = document.getElementById('chatInput');
+        const text = input.value;
+        if(!text) return;
+        const body = document.getElementById('chatBody');
+        body.innerHTML += `<div class="msg msg-user">${text}</div>`;
+        input.value = '';
+        document.getElementById('typingIndicator').style.display = 'block';
+        body.scrollTop = body.scrollHeight;
+        
+        const context = `User is doing Hybrid OS. Day: ${exercises[state.day].title}. Exercises: ${JSON.stringify(exercises[state.day].list)}. User asks: ${text}`;
+        const reply = await callGemini("You are a bodybuilding coach. Concise answers. " + context);
+        
+        document.getElementById('typingIndicator').style.display = 'none';
+        body.innerHTML += `<div class="msg msg-ai">${reply.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>')}</div>`;
+        body.scrollTop = body.scrollHeight;
+    }
+
+    async function generateWarmup() {
+        const btn = document.querySelector('.btn-warmup');
+        btn.innerText = "Generating...";
+        const reply = await callGemini(`Create a 5-min warmup bullet list for: ${JSON.stringify(exercises[state.day].list)}`);
+        const div = document.createElement('div');
+        div.className = 'info-card';
+        div.style.textAlign = 'left';
+        div.innerHTML = `<h3>🔥 Smart Warmup</h3><hr style="border-color:#444"><div style="white-space: pre-wrap;">${reply.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>')}</div>`;
+        btn.replaceWith(div);
+    }
+
+
+    // Expose functions for inline HTML handlers (module scope)
+    window.openCoach = openCoach;
+    window.closeModal = closeModal;
+    window.sendMessage = sendMessage;
+    window.generateWarmup = generateWarmup;
+    window.addSet = addSet;
+    window.save = save;
+    window.toggleDone = toggleDone;
+    window.toggleAutoBackup = toggleAutoBackup;
+    window.manualExport = manualExport;
+    window.importData = importData;
+    window.clearKey = clearKey;
+    window.signIn = signIn;
+
+    init();
+</script>
+</body>
+</html>	

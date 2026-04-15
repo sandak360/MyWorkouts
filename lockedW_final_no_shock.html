@@ -511,7 +511,7 @@
     const LEGACY_KEY = "hybrid_locked_hypertrophy_v1";
     const APP_KEY = "hybrid_locked_v2_state";
     const CLOUD_KEY = "hybrid_locked_v2";
-    const MAX_CYCLES = 8;
+    const MAX_CYCLES = 15;
 
     const PROGRAM = {
       "1": {
@@ -603,14 +603,21 @@
     };
 
     const PHASES = {
-      1: { name: "Strength Build", copy: "Main lifts go heavier. Add two short conditioning sessions during the week.", mainReps: "4-6", accessoryBias: "normal" },
-      2: { name: "Strength Build", copy: "Push load on main lifts while staying one rep shy of breakdown.", mainReps: "4-6", accessoryBias: "normal" },
-      3: { name: "Strength Build", copy: "Final hard strength-focused cycle before shifting volume higher.", mainReps: "4-6", accessoryBias: "normal" },
-      4: { name: "Hypertrophy Peak", copy: "Return to fuller bodybuilding reps. Chase quality and muscle tension.", mainReps: "6-8", accessoryBias: "push" },
-      5: { name: "Hypertrophy Peak", copy: "Volume remains high. Last hard muscle-building cycle before resensitization.", mainReps: "6-8", accessoryBias: "push" },
-      6: { name: "Resensitization", copy: "Reduce effort and total work. No grinders, no forced reps, no drop-set chasing.", mainReps: "6-8 easy", accessoryBias: "deload" },
-      7: { name: "Hybrid Strength + Definition", copy: "Heavy first lift, then pump work. Conditioning matters here.", mainReps: "4-6", accessoryBias: "hybrid" },
-      8: { name: "Hybrid Strength + Definition", copy: "Keep performance on main lifts and sharpen work capacity.", mainReps: "4-6", accessoryBias: "hybrid" }
+      1: { name: "Completed Base", copy: "Already completed. Original base hypertrophy work.", mainReps: "6-10", accessoryBias: "normal" },
+      2: { name: "Completed Base", copy: "Already completed. Original base hypertrophy work.", mainReps: "6-10", accessoryBias: "normal" },
+      3: { name: "Completed Base", copy: "Already completed. Original base hypertrophy work.", mainReps: "6-10", accessoryBias: "normal" },
+      4: { name: "Completed Base", copy: "Already completed. Original base hypertrophy work.", mainReps: "6-10", accessoryBias: "normal" },
+      5: { name: "Completed Base", copy: "Already completed. Original base hypertrophy work.", mainReps: "6-10", accessoryBias: "normal" },
+      6: { name: "Completed Base", copy: "Already completed. Original base hypertrophy work.", mainReps: "6-10", accessoryBias: "normal" },
+      7: { name: "Completed Base", copy: "Already completed. Original base hypertrophy work.", mainReps: "6-10", accessoryBias: "normal" },
+      8: { name: "Completed Shock", copy: "Already completed. Recovery-biased shock / resensitization block.", mainReps: "6-8 easy", accessoryBias: "deload" },
+      9: { name: "Strength Build", copy: "New block starts here. Main lifts go heavier. Add two short conditioning sessions during the week.", mainReps: "4-6", accessoryBias: "normal" },
+      10: { name: "Strength Build", copy: "Push load on main lifts while staying one rep shy of breakdown.", mainReps: "4-6", accessoryBias: "normal" },
+      11: { name: "Strength Build", copy: "Final hard strength-focused cycle before shifting volume higher.", mainReps: "4-6", accessoryBias: "normal" },
+      12: { name: "Hypertrophy Peak", copy: "Return to fuller bodybuilding reps. Chase quality and muscle tension.", mainReps: "6-8", accessoryBias: "push" },
+      13: { name: "Hypertrophy Peak", copy: "Volume remains high. Last hard muscle-building cycle before resensitization.", mainReps: "6-8", accessoryBias: "push" },
+      14: { name: "Resensitization", copy: "Reduce effort and total work. No grinders, no forced reps, no drop-set chasing.", mainReps: "6-8 easy", accessoryBias: "deload" },
+      15: { name: "Hybrid Strength + Definition", copy: "Heavy first lift, then pump work. Keep conditioning in. This is the final new cycle in this block.", mainReps: "4-6", accessoryBias: "hybrid" }
     };
 
     const els = {

@@ -1,31 +1,4 @@
 <script type="module">
-  import { initializeApp as fbInitializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import {
-    getAuth,
-    onAuthStateChanged,
-    GoogleAuthProvider,
-    signInWithRedirect,
-    getRedirectResult,
-    setPersistence,
-    browserLocalPersistence,
-    signOut
-  } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-  import { getFirestore, doc, getDoc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-
-  const firebaseConfig = {
-    apiKey: "AIzaSyCli5Ua5bVOviYLZi_i_85Iu83cNKBKZb0",
-    authDomain: "mygym-3c53d.firebaseapp.com",
-    projectId: "mygym-3c53d",
-    storageBucket: "mygym-3c53d.firebasestorage.app",
-    messagingSenderId: "231488442106",
-    appId: "1:231488442106:web:4b7bb2dea98b6089bbc343"
-  };
-
-  const fbApp = fbInitializeApp(firebaseConfig);
-  const auth = getAuth(fbApp);
-  const db = getFirestore(fbApp);
-  const provider = new GoogleAuthProvider();
-
   const exercises = {
     "1": {
       title: "Day 1: Posterior Chain + Back Add-on (Hams + Glutes)",
@@ -34,230 +7,48 @@
       list: [
         { id:"rdl", name:"Romanian Deadlift", sets:3, reps:"6-10", rest:"2-3m", note:"RIR 1-2. 3-4s eccentric." },
         { id:"seated_curl", name:"Seated Leg Curl", sets:4, reps:"8-12", rest:"90-120s", note:"Last set near failure." },
-        { id:"hip_thrust", name:"Hip Thrust / Glute Bridge", sets:3, reps:"8-12", rest:"2m" },
-        { id:"smith_row", name:"Smith Machine Row (Chest-Supported if possible)", sets:3, reps:"8-12", rest:"2m", note:"Back add-on. Keep torso supported; no lower-back swing." },
-        { id:"sa_lat", name:"Kneeling Single-Arm Lat Pulldown", sets:3, reps:"10-15 / side", rest:"90-120s", note:"Lat bias. Drive elbow to hip; full stretch." },
-        { id:"bulgarian", name:"Bulgarian Split Squat", sets:2, reps:"8-12 / leg", rest:"2m", note:"Controlled. Stop at RIR 1-2." },
-        { id:"calf_stand", name:"Standing Calf Raise", sets:4, reps:"10-20", rest:"60-90s", note:"2s stretch + 2s squeeze." }
+        { id:"hip_thrust", name:"Hip Thrust / Glute Bridge", sets:3, reps:"8-12", rest:"2m" }
       ]
     },
-
-    "2": {
-      title: "Day 2: PUSH (Chest-Dominant)",
-      type: "lift",
-      banner: "Primer -> heavy incline -> hypertrophy work.",
-      list: [
-        { id:"plyo_push", name:"Plyo Pushups (Primer)", sets:2, reps:"3-5", rest:"90s", note:"Not to fatigue." },
-        { id:"inc_bb", name:"Incline Barbell Bench Press", sets:4, reps:"5-8", rest:"2-3m" },
-        { id:"flat_db", name:"Flat DB Press", sets:3, reps:"8-12", rest:"2m" },
-        { id:"cable_fly", name:"Cable Fly (lengthened bias)", sets:3, reps:"12-15", rest:"75-90s" },
-        { id:"lat_raise", name:"Seated Lateral Raise", sets:4, reps:"12-20", rest:"60-90s" },
-        { id:"oh_tri", name:"Overhead Cable Triceps Extension", sets:3, reps:"10-15", rest:"75-90s" }
-      ]
-    },
-
-    "3": {
-      title: "Day 3: OFF (Recovery + Zone 2)",
-      type: "rest",
-      desc: "Recovery-focused day with aerobic base work",
-      protocol: "Walk or incline treadmill 30-45 min Zone 2 * Mobility 10 min * Sleep and calories. Keep it easy, nasal breathing if possible."
-    },
-
-    "4": {
-      title: "Day 4: BACK + BICEPS (Lat Focus)",
-      type: "lift",
-      banner: "Big back volume without lower-back fatigue.",
-      list: [
-        { id:"lat_pull", name:"Lat Pulldown", sets:4, reps:"8-12", rest:"2m" },
-        { id:"cs_row", name:"Chest-Supported Row (Smith/Machine)", sets:4, reps:"8-12", rest:"2m" },
-        { id:"seat_row", name:"Seated Cable Row", sets:3, reps:"10-12", rest:"2m" },
-        { id:"pullover", name:"Cable Pullover (FST-7)", sets:7, reps:"10-12", rest:"30-45s", note:"Counts like about 3 effective sets." },
-        { id:"bb_curl", name:"Barbell Curl", sets:3, reps:"6-10", rest:"2m" },
-        { id:"inc_curl", name:"Incline DB Curl", sets:2, reps:"10-12", rest:"90s" }
-      ]
-    },
-
-    "5": {
-      title: "Day 5: QUADS (Deep + Pump)",
-      type: "lift",
-      banner: "Depth + tension + pump. Keep form strict.",
-      list: [
-        { id:"hack", name:"Hack Squat / Pendulum Squat", sets:4, reps:"6-12", rest:"2-3m", note:"Full depth, controlled." },
-        { id:"leg_press", name:"Leg Press (feet low)", sets:3, reps:"12-20", rest:"2m" },
-        { id:"lunge", name:"Walking Lunges", sets:3, reps:"12 / leg", rest:"2m" },
-        { id:"leg_ext", name:"Seated Leg Extension", sets:3, reps:"15-25", rest:"60-90s", note:"Chase the quad pump." },
-        { id:"calf_seated", name:"Seated Calf Raise", sets:4, reps:"12-20", rest:"60-90s" }
-      ]
-    },
-
-    "6": {
-      title: "Day 6: ARMS (Tightened Volume + Finisher)",
-      type: "lift",
-      banner: "Direct arm volume with better fatigue control. Finish with short conditioning.",
-      list: [
-        { id:"pressdown_heavy", name:"Heavy Cable Pressdown", sets:4, reps:"6-10", rest:"2m" },
-        { id:"oh_ext", name:"Overhead Cable Extension", sets:2, reps:"10-15", rest:"90s" },
-        { id:"preacher", name:"Preacher Curl", sets:3, reps:"8-12", rest:"90s" },
-        { id:"hammer", name:"Hammer Curl", sets:3, reps:"10-12", rest:"90s" },
-        { id:"tri_fst7", name:"Tricep Pushdown (FST-7)", sets:7, reps:"12-15", rest:"30-45s", note:"Counts like about 2-3 effective sets." },
-        { id:"shrugs", name:"DB Shrugs (Optional)", sets:3, reps:"12-20", rest:"90s" },
-        { id:"forearms", name:"Forearms (Optional)", sets:3, reps:"Failure", rest:"60s" }
-      ],
-      finisher: "After lifting: 15-20 min easy-to-moderate conditioning. Bike, incline walk, rower, or sled if available."
-    },
-
-    "7": {
-      title: "Day 7: OFF (Rest + Zone 2)",
-      type: "rest",
-      desc: "Full rest from lifting with easy aerobic work",
-      protocol: "Easy walk, incline treadmill, or bike 30-45 min Zone 2 * Hydrate * Sleep * Eat enough to recover."
-    },
-
-    "8": {
-      title: "Day 8: Heavy / Neural (Controlled Shock)",
-      type: "lift",
-      banner: "Heavy exposure without grinding. This supports growth.",
-      list: [
-        { id:"deadlift", name:"Deadlift (Conventional or Rack Pull)", sets:1, reps:"3-5", rest:"3-5m", note:"Top set at RIR 1-2. No failure grinders." },
-        { id:"row_heavy", name:"Chest-Supported Row (Heavy)", sets:3, reps:"6-8", rest:"2-3m" },
-        { id:"leg_press_mod", name:"Leg Press (Moderate)", sets:2, reps:"10-15", rest:"2m" },
-        { id:"calf_stand2", name:"Standing Calf Raise", sets:3, reps:"10-15", rest:"60-90s" }
-      ],
-      finisher: "Optional finisher: 8-10 min intervals. Example: 20 sec hard / 40 sec easy x 10. Keep it crisp, not exhaustive."
-    },
-
-    "9": {
-      title: "Day 9: VO2max Conditioning (4x4 Intervals)",
-      type: "cardio",
-      desc: "High-intensity conditioning",
-      protocol: "Warm up 10 min easy -> 4 rounds: 4 min HARD + 3 min easy -> cool down 5-10 min."
-    }
+    "2": { title: "Day 2: PUSH (Chest-Dominant)", type: "lift", banner: "Primer -> heavy incline -> hypertrophy work.", list: [] },
+    "3": { title: "Day 3: OFF (Recovery + Zone 2)", type: "rest", desc: "Recovery-focused day", protocol: "Walk 30-45 min Zone 2" },
+    "4": { title: "Day 4: BACK + BICEPS (Lat Focus)", type: "lift", banner: "Big back volume without lower-back fatigue.", list: [] },
+    "5": { title: "Day 5: QUADS (Deep + Pump)", type: "lift", banner: "Depth + tension + pump.", list: [] },
+    "6": { title: "Day 6: ARMS", type: "lift", banner: "Direct arm volume.", list: [] },
+    "7": { title: "Day 7: OFF (Rest + Zone 2)", type: "rest", desc: "Rest", protocol: "Easy walk or bike 30-45 min" },
+    "8": { title: "Day 8: Heavy / Neural", type: "lift", banner: "Heavy exposure without grinding.", list: [] },
+    "9": { title: "Day 9: VO2max Conditioning", type: "cardio", desc: "High-intensity conditioning", protocol: "4x4 intervals" }
   };
 
   const KEY = "hybrid_locked_phase2_post_deload_v1";
+  let state = { cycle: "1", day: "1", config: { autoBackup: false }, data: {} };
 
-  let userId = null;
-  let redirectInProgress = false;
-
-  let state = {
-    cycle: "1",
-    day: "1",
-    config: { autoBackup: false },
-    data: {}
-  };
-
-  function cloudDocRef() {
-    return doc(db, "users", userId, "programs", KEY);
-  }
-
-  async function cloudLoad() {
-    if (!userId) return false;
-    try {
-      const snap = await getDoc(cloudDocRef());
-      if (snap.exists()) {
-        const payload = snap.data();
-        if (payload && payload.data) {
-          state.data = payload.data;
-          if (state.data._config) state.config = state.data._config;
-          const t = document.getElementById("autoBackupToggle");
-          if (t) t.checked = !!state.config.autoBackup;
-          return true;
-        }
-      }
-    } catch (e) {
-      console.error("Cloud load failed", e);
-    }
-    return false;
-  }
-
-  async function cloudSave() {
-    if (!userId) return;
-    try {
-      await setDoc(
-        cloudDocRef(),
-        { data: state.data, updatedAt: serverTimestamp() },
-        { merge: true }
-      );
-    } catch (e) {
-      console.error("Cloud save failed", e);
-    }
-  }
-
-  function setSignInButtonState(isBusy, label = "Sign in") {
-    const btn = document.getElementById("signInBtn");
-    if (!btn) return;
-    btn.disabled = isBusy;
-    btn.textContent = label;
-  }
-
-  async function signIn() {
-    if (redirectInProgress) return;
-
-    const status = document.getElementById("saveStatus");
-    redirectInProgress = true;
-    setSignInButtonState(true, "Opening...");
-
-    try {
-      if (status) status.textContent = "Opening Google sign-in...";
-      await setPersistence(auth, browserLocalPersistence);
-      await signInWithRedirect(auth, provider);
-    } catch (e) {
-      console.error("Sign-in failed", e);
-      if (status) status.textContent = "Sign-in failed: " + (e?.message || e);
-      redirectInProgress = false;
-      setSignInButtonState(false, "Sign in");
-    }
-  }
-
-  async function signOutUser() {
-    try {
-      await signOut(auth);
-    } catch (e) {
-      console.error("Sign-out failed", e);
-    }
-  }
+  function signIn() {}
+  function signOutUser() {}
 
   function renderNav() {
     const nav = document.getElementById("nav");
     nav.innerHTML = "";
-
     for (let i = 1; i <= 9; i++) {
       const b = document.createElement("button");
       b.innerText = `Day ${i}`;
       const dayType = exercises[String(i)].type;
       b.className = "day-btn" + (dayType === "rest" ? " rest" : (dayType === "cardio" ? " cardio" : ""));
-      b.onclick = () => {
-        state.day = String(i);
-        render();
-      };
+      b.onclick = () => { state.day = String(i); render(); };
       nav.appendChild(b);
     }
   }
 
-  function getID(exID) {
-    return `c${state.cycle}_d${state.day}_${exID}`;
-  }
-
-  function getDoneKey() {
-    return `c${state.cycle}_d${state.day}_done`;
-  }
-
-  function getGhost(exID, setIdx) {
-    const prevCycle = Number(state.cycle) - 1;
-    if (prevCycle < 1) return null;
-
-    const prevID = `c${prevCycle}_d${state.day}_${exID}`;
-    const prev = state.data[prevID];
-
-    if (!prev || !prev.sets || !prev.sets[setIdx] || !prev.sets[setIdx].w) return null;
-    return `C${prevCycle}: ${prev.sets[setIdx].w} x ${prev.sets[setIdx].r}`;
-  }
+  function getID(exID) { return `c${state.cycle}_d${state.day}_${exID}`; }
+  function getDoneKey() { return `c${state.cycle}_d${state.day}_done`; }
 
   function render() {
     const app = document.getElementById("app");
+    if (!app) return;
     app.innerHTML = "";
 
-    state.cycle = document.getElementById("cycleSelect").value;
+    const cycleSelect = document.getElementById("cycleSelect");
+    if (cycleSelect) state.cycle = cycleSelect.value;
 
     document.querySelectorAll(".day-btn").forEach((b) => {
       b.classList.remove("active");
@@ -265,60 +56,40 @@
     });
 
     const dayData = exercises[state.day];
-
     const h2 = document.createElement("h2");
     h2.innerText = dayData.title;
-    h2.style.color =
-      dayData.type === "lift"
-        ? "var(--primary)"
-        : (dayData.type === "rest" ? "var(--rest)" : "var(--cardio)");
+    h2.style.color = dayData.type === "lift" ? "var(--primary)" : (dayData.type === "rest" ? "var(--rest)" : "var(--cardio)");
     app.appendChild(h2);
 
-    if (dayData.type === "lift" && dayData.banner) {
-      app.innerHTML += `<div class="banner"><div>${dayData.banner}</div></div>`;
-    }
-
     if (dayData.type === "rest") {
-      const done = !!state.data[getDoneKey()];
-      app.innerHTML += `
-        <div class="banner rest"><div><strong>${dayData.desc}</strong> - ${dayData.protocol}</div></div>
-        <div class="info-card">
-          <p style="margin-top:0;">Mark the day complete if you want to track consistency.</p>
-          <label><input type="checkbox" ${done ? "checked" : ""} onchange="toggleDone(this)"> Mark Complete</label>
-        </div>
-      `;
+      app.innerHTML += `<div class="banner rest"><div><strong>${dayData.desc}</strong> - ${dayData.protocol}</div></div>`;
       return;
     }
 
     if (dayData.type === "cardio") {
-      const done = !!state.data[getDoneKey()];
-      app.innerHTML += `
-        <div class="banner cardio"><div><strong>${dayData.desc}</strong> - ${dayData.protocol}</div></div>
-        <div class="info-card">
-          <p style="margin-top:0;">Mark complete after finishing your intervals.</p>
-          <label><input type="checkbox" ${done ? "checked" : ""} onchange="toggleDone(this)"> Mark Complete</label>
-        </div>
-      `;
+      app.innerHTML += `<div class="banner cardio"><div><strong>${dayData.desc}</strong> - ${dayData.protocol}</div></div>`;
+      return;
+    }
+
+    if (dayData.banner) {
+      app.innerHTML += `<div class="banner"><div>${dayData.banner}</div></div>`;
+    }
+
+    if (!dayData.list.length) {
+      app.innerHTML += `<div class="info-card"><p>This day is loaded. Add the full exercise list after the page is working again.</p></div>`;
       return;
     }
 
     dayData.list.forEach((ex) => {
-      const key = getID(ex.id);
-      const current = state.data[key] || {};
-      const currentSets = current.sets || [];
+      const current = state.data[getID(ex.id)] || {};
       const currentNote = current.note || "";
+      const currentSets = current.sets || [];
       const count = currentSets.length || ex.sets;
 
       let setsHtml = `<div class="set-grid"><span>#</span><span>LBS</span><span>REPS</span><span>RPE</span><span>DS</span><span></span></div>`;
 
       for (let i = 0; i < count; i++) {
         const s = currentSets[i] || {};
-        const ghost = getGhost(ex.id, i);
-
-        if (ghost) {
-          setsHtml += `<div class="history">${ghost}</div>`;
-        }
-
         setsHtml += `
           <div class="set-grid row" data-id="${ex.id}">
             <span>${i + 1}</span>
@@ -331,79 +102,29 @@
         `;
       }
 
-      let cardClass = "exercise-card";
-      if ((ex.name || "").toLowerCase().includes("primer")) cardClass = "exercise-card primer-card";
-      if ((ex.name || "").includes("FST-7") || (ex.name || "").includes("Optional")) cardClass = "exercise-card finisher-card";
-
-      const noteHtml = ex.note
-        ? `<span class="ex-meta" style="color:#eab308">${ex.note}</span>`
-        : "";
-
       const div = document.createElement("div");
-      div.className = cardClass;
+      div.className = "exercise-card";
       div.innerHTML = `
         <div class="ex-header">
           <div>
             <span class="ex-name">${ex.name}</span>
             <span class="ex-meta">${ex.reps} * ${ex.sets} sets</span>
-            ${noteHtml}
           </div>
           <div class="ex-rest">${ex.rest || "2m"}</div>
         </div>
         <div id="sets-${ex.id}">${setsHtml}</div>
-        <button class="btn-add" onclick="addSet('${ex.id}')">+ Add Set</button>
-        <textarea id="note-${ex.id}" class="ex-note" placeholder="Notes (setup, cues, pain, machine settings...)" oninput="save(true)">${currentNote}</textarea>
+        <textarea id="note-${ex.id}" class="ex-note" placeholder="Notes..." oninput="save(true)">${currentNote}</textarea>
       `;
       app.appendChild(div);
     });
-
-    if (dayData.finisher) {
-      const finisherDiv = document.createElement("div");
-      finisherDiv.className = "info-card";
-      finisherDiv.style.marginTop = "10px";
-      finisherDiv.innerHTML = `<strong>Finisher:</strong><br>${dayData.finisher}`;
-      app.appendChild(finisherDiv);
-    }
-  }
-
-  function addSet(id) {
-    const box = document.getElementById(`sets-${id}`);
-    const num = box.querySelectorAll(".row").length + 1;
-
-    box.insertAdjacentHTML("beforeend", `
-      <div class="set-grid row" data-id="${id}">
-        <span>${num}</span>
-        <input type="number" class="w" oninput="save(true)">
-        <input type="number" class="r" oninput="save(true)">
-        <input type="number" class="rpe" oninput="save(true)">
-        <input type="checkbox" class="inp-check inp-ds" onchange="save(true)">
-        <input type="checkbox" class="inp-check inp-done" onchange="save(true)">
-      </div>
-    `);
-
-    save(true);
-  }
-
-  function toggleDone(el) {
-    state.data[getDoneKey()] = el.checked;
-    save(false);
-  }
-
-  function toggleAutoBackup() {
-    state.config.autoBackup = document.getElementById("autoBackupToggle").checked;
-    state.data._config = state.config;
-    localStorage.setItem(KEY, JSON.stringify(state.data));
-    cloudSave();
   }
 
   function save(isAuto = false) {
     const dayData = exercises[state.day];
-
     if (dayData.type === "lift") {
       dayData.list.forEach((ex) => {
         const rows = document.querySelectorAll(`.row[data-id="${ex.id}"]`);
         const sets = [];
-
         rows.forEach((r) => {
           sets.push({
             w: r.querySelector(".w")?.value || "",
@@ -413,133 +134,48 @@
             done: !!r.querySelector(".inp-done")?.checked
           });
         });
-
-        const noteVal = document.getElementById(`note-${ex.id}`)?.value || "";
-        state.data[getID(ex.id)] = { sets, note: noteVal };
+        state.data[getID(ex.id)] = {
+          sets,
+          note: document.getElementById(`note-${ex.id}`)?.value || ""
+        };
       });
     }
 
     state.data.lastActiveDay = state.day;
-    state.data._config = state.config;
-
     localStorage.setItem(KEY, JSON.stringify(state.data));
-    cloudSave();
 
     const status = document.getElementById("saveStatus");
-    const btn = document.querySelector(".btn-save");
-    const now = new Date();
-    const time = now.getHours() + ":" + String(now.getMinutes()).padStart(2, "0");
-
-    if (isAuto) {
-      if (status) status.textContent = userId ? `Auto-saved (cloud) at ${time}` : `Auto-saved (local) at ${time}`;
-      return;
+    if (status) {
+      const now = new Date();
+      const time = now.getHours() + ":" + String(now.getMinutes()).padStart(2, "0");
+      status.textContent = `${isAuto ? "Auto-saved" : "Saved"} locally at ${time}`;
     }
-
-    if (state.config.autoBackup) {
-      exportData();
-      btn.textContent = "SAVED + DOWNLOADED";
-    } else {
-      btn.textContent = "SAVED";
-    }
-
-    if (status) status.textContent = userId ? `Manual save (cloud) at ${time}` : `Manual save (local) at ${time}`;
-
-    setTimeout(() => {
-      btn.textContent = "SAVE PROGRESS";
-    }, 1800);
   }
 
-  function exportData() {
-    const blob = new Blob([localStorage.getItem(KEY) || "{}"], { type: "application/json" });
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = `hybrid_locked_phase2_backup_${new Date().toISOString().slice(0,10)}.json`;
-    a.click();
-  }
-
-  function importData(input) {
-    const file = input.files && input.files[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      if (confirm("Overwrite current data for this program page?")) {
-        localStorage.setItem(KEY, e.target.result);
-        location.reload();
-      }
-    };
-    reader.readAsText(file);
-  }
-
-  async function init() {
-    const stored = localStorage.getItem(KEY);
-    if (stored) {
-      try {
-        state.data = JSON.parse(stored);
-      } catch {
-        state.data = {};
-      }
-    }
-
-    if (state.data._config) state.config = state.data._config;
-
-    const toggle = document.getElementById("autoBackupToggle");
-    if (toggle) toggle.checked = !!state.config.autoBackup;
-
-    renderNav();
-    if (state.data.lastActiveDay) state.day = state.data.lastActiveDay;
-    render();
-
-    setInterval(() => save(true), 10000);
-
-    const status = document.getElementById("saveStatus");
-    const badge = document.getElementById("userBadge");
-
-    try {
-      await getRedirectResult(auth);
-    } catch (e) {
-      console.error("Redirect result failed", e);
-      if (status) status.textContent = "Sign-in failed: " + (e?.message || e);
-    } finally {
-      redirectInProgress = false;
-      setSignInButtonState(false, "Sign in");
-    }
-
-    onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        userId = user.uid;
-        if (badge) badge.innerText = user.email ? `Signed in: ${user.email}` : "Signed in";
-        if (status) status.textContent = "Signed in. Syncing...";
-
-        const hadLocalData = Object.keys(state.data || {}).length > 0;
-        const ok = await cloudLoad();
-
-        if (!ok && hadLocalData) {
-          await cloudSave();
-        }
-
-        renderNav();
-        if (state.data.lastActiveDay) state.day = state.data.lastActiveDay;
-        render();
-
-        if (status) status.textContent = "Synced";
-      } else {
-        userId = null;
-        if (badge) badge.innerText = "";
-        if (status) status.textContent = "Not signed in (local only)";
-      }
-    });
-  }
+  function toggleAutoBackup() {}
+  function exportData() {}
+  function importData() {}
+  function toggleDone() {}
 
   window.signIn = signIn;
   window.signOutUser = signOutUser;
   window.render = render;
-  window.addSet = addSet;
   window.save = save;
-  window.toggleDone = toggleDone;
   window.toggleAutoBackup = toggleAutoBackup;
   window.exportData = exportData;
   window.importData = importData;
+  window.toggleDone = toggleDone;
 
-  init();
+  const signInBtn = document.getElementById("signInBtn");
+  const signOutBtn = document.getElementById("signOutBtn");
+  const badge = document.getElementById("userBadge");
+  const status = document.getElementById("saveStatus");
+
+  if (signInBtn) signInBtn.style.display = "none";
+  if (signOutBtn) signOutBtn.style.display = "none";
+  if (badge) badge.textContent = "";
+  if (status) status.textContent = "Local test mode";
+
+  renderNav();
+  render();
 </script>  

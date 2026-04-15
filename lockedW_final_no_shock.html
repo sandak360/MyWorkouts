@@ -2,549 +2,1140 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Hybrid Locked Hypertrophy (Cloud Synced)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hybrid Locked v2</title>
   <style>
-    :root{
-      --primary:#8b5cf6; --cardio:#f43f5e; --rest:#10b981;
-      --bg:#0f172a; --card:#1e293b; --text:#f1f5f9; --muted:#9aa4b2; --input-bg:#334155;
-      --border:#2b3647;
+    :root {
+      --bg: #0f172a;
+      --card: #1e293b;
+      --card-2: #162031;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --border: #314156;
+      --input: #334155;
+      --primary: #8b5cf6;
+      --green: #10b981;
+      --red: #f43f5e;
+      --yellow: #f59e0b;
     }
-    body{ font-family:-apple-system,BlinkMacSystemFont,sans-serif; background:var(--bg); color:var(--text); margin:0; padding-bottom:170px; }
-    header{ background:var(--card); padding:15px; position:sticky; top:0; z-index:100; border-bottom:1px solid #333; }
-    .top-row{ display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:10px; }
-    h1{ margin:0; font-size:1.05rem; color:var(--primary); font-weight:900; letter-spacing:.4px; }
-    select{ background:var(--input-bg); color:white; padding:6px 10px; border-radius:10px; border:1px solid #555; }
-    .right{ display:flex; align-items:center; gap:8px; }
-    .btn-pill{ background:linear-gradient(135deg,#6366f1,#8b5cf6); color:white; border:none; padding:7px 12px; border-radius:999px; font-weight:900; cursor:pointer; font-size:0.82rem; }
-    .btn-pill.secondary{ background:#2b3647; border:1px solid #43526a; color:#d1d5db; }
-    #userBadge{ font-size:0.78rem; color:var(--muted); text-align:right; }
 
-    .cycle-nav{ display:flex; overflow-x:auto; gap:6px; padding-bottom:5px; }
-    .day-btn{ background:var(--input-bg); color:var(--muted); border:none; padding:10px 14px; border-radius:12px; white-space:nowrap; cursor:pointer; }
-    .day-btn.active{ background:var(--primary); color:white; font-weight:900; }
-    .day-btn.cardio{ background:rgba(244,63,94,0.25); color:#fecdd3; border:1px solid rgba(244,63,94,0.45); }
-    .day-btn.rest{ background:rgba(16,185,129,0.20); color:#a7f3d0; border:1px solid rgba(16,185,129,0.45); }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      padding-bottom: 180px;
+    }
 
-    .container{ padding:15px; max-width:760px; margin:0 auto; }
-    .banner{ border-radius:12px; padding:10px; margin-bottom:15px; border:1px solid var(--border); background:rgba(255,255,255,0.04); font-size:0.92rem; color:#dbeafe; display:flex; gap:10px; align-items:center; }
-    .banner.rest{ color:#a7f3d0; border-color:rgba(16,185,129,0.45); background:rgba(16,185,129,0.10); }
-    .banner.cardio{ color:#fecdd3; border-color:rgba(244,63,94,0.45); background:rgba(244,63,94,0.10); }
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: rgba(15, 23, 42, 0.96);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--border);
+      padding: 14px;
+    }
 
-    .exercise-card{ background:var(--card); border-radius:14px; padding:15px; margin-bottom:15px; border:1px solid #333; }
-    .primer-card{ border:1px solid #eab308; background:rgba(234,179,8,0.10); }
-    .finisher-card{ border:1px solid #a855f7; background:rgba(168,85,247,0.10); }
+    .header-row,
+    .header-row-2 {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      max-width: 920px;
+      margin: 0 auto 10px;
+    }
 
-    .ex-header{ display:flex; justify-content:space-between; align-items:flex-start; gap:10px; margin-bottom:10px; }
-    .ex-name{ font-weight:900; font-size:1rem; display:block; }
-    .ex-meta{ font-size:0.78rem; color:#94a3b8; margin-top:3px; display:block; line-height:1.25; }
-    .ex-rest{ background:#334155; color:#e2e8f0; padding:3px 8px; border-radius:10px; font-size:0.74rem; white-space:nowrap; }
+    .header-row-2 { margin-bottom: 0; }
 
-    .set-grid{ display:grid; grid-template-columns:26px 1fr 1fr 1fr 28px 28px; gap:6px; margin-bottom:6px; align-items:center; }
-    .set-grid span{ font-size:0.72rem; color:var(--muted); text-align:center; }
-    input{ background:var(--input-bg); border:1px solid #444; color:white; padding:8px 2px; width:100%; text-align:center; border-radius:10px; font-size:0.92rem; }
-    .inp-check{ height:18px; width:18px; cursor:pointer; }
-    .inp-done{ accent-color:var(--rest); }
-    .inp-ds{ accent-color:var(--cardio); }
-    .history{ font-size:0.78rem; color:#94a3b8; grid-column:2 / span 5; text-align:center; font-style:italic; margin-bottom:2px; opacity:0.75; }
+    .title-wrap h1 {
+      margin: 0;
+      font-size: 1.05rem;
+      font-weight: 900;
+      color: var(--primary);
+      letter-spacing: 0.4px;
+    }
 
-    .btn-add{ width:100%; background:transparent; border:1px dashed #566276; color:#a8b1bf; padding:10px; margin-top:6px; cursor:pointer; border-radius:12px; }
-    .ex-note{ width:100%; background:rgba(0,0,0,0.18); border:1px solid #3d495b; color:#e2e8f0; padding:10px; border-radius:12px; font-family:inherit; font-size:0.9rem; margin-top:10px; resize:vertical; box-sizing:border-box; }
+    .subtitle {
+      font-size: 0.9rem;
+      color: #cbd5e1;
+      margin-top: 5px;
+    }
 
-    .info-card{ background:rgba(255,255,255,0.05); padding:18px; border-radius:14px; text-align:center; border:1px solid #444; }
+    .auth-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      align-items: flex-end;
+      min-width: 210px;
+    }
 
-    .fab{ position:fixed; bottom:18px; left:50%; transform:translateX(-50%); width:92%; max-width:460px; display:flex; flex-direction:column; gap:8px; z-index:200; }
-    .btn-save{ width:100%; background:var(--rest); color:white; border:none; padding:15px; border-radius:30px; font-weight:1000; font-size:1rem; cursor:pointer; box-shadow:0 10px 30px rgba(0,0,0,0.35); }
-    .save-status{ text-align:center; color:var(--muted); font-size:0.78rem; }
-    .tools{ text-align:center; margin-top:30px; padding-top:18px; border-top:1px solid #333; }
-    .btn-small{ background:#2b3647; color:#d1d5db; border:1px solid #43526a; padding:6px 10px; border-radius:12px; cursor:pointer; margin:0 6px; }
-    .switch-label{ font-size:0.9rem; color:#cbd5e1; display:flex; align-items:center; justify-content:center; gap:10px; margin-bottom:10px; }
-    .switch-input{ width:20px; height:20px; accent-color:var(--primary); }
+    .btn-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
 
-    .subtitle{ color:#cbd5e1; font-size:0.9rem; margin:8px 0 0 0; }
+    .btn {
+      border: none;
+      border-radius: 999px;
+      padding: 9px 13px;
+      cursor: pointer;
+      font-weight: 800;
+      color: white;
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    }
+
+    .btn.secondary {
+      background: #263446;
+      border: 1px solid #42546d;
+      color: #dbe3ee;
+    }
+
+    .btn.warn {
+      background: #2d2330;
+      border: 1px solid #5a3450;
+      color: #ffd6e2;
+    }
+
+    .status-pill {
+      font-size: 0.78rem;
+      color: var(--muted);
+      text-align: right;
+    }
+
+    .toolbar {
+      max-width: 920px;
+      margin: 0 auto;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+    }
+
+    .toolbar-left,
+    .toolbar-right {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    select, input[type="number"], textarea {
+      background: var(--input);
+      color: white;
+      border: 1px solid #45566d;
+      border-radius: 12px;
+    }
+
+    select {
+      padding: 8px 11px;
+      min-width: 120px;
+    }
+
+    main {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 16px;
+    }
+
+    .phase-banner,
+    .info-banner {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 12px 14px;
+      margin-bottom: 14px;
+    }
+
+    .phase-banner {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .phase-title {
+      font-size: 0.92rem;
+      font-weight: 800;
+      color: #ddd6fe;
+    }
+
+    .phase-copy,
+    .info-banner {
+      color: #d7e3f3;
+      font-size: 0.92rem;
+      line-height: 1.45;
+    }
+
+    .nav-days {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 6px;
+      margin-bottom: 14px;
+    }
+
+    .day-btn {
+      border: none;
+      border-radius: 12px;
+      padding: 10px 14px;
+      white-space: nowrap;
+      background: #334155;
+      color: #cbd5e1;
+      cursor: pointer;
+      font-weight: 700;
+    }
+
+    .day-btn.active {
+      background: var(--primary);
+      color: white;
+    }
+
+    .day-btn.rest {
+      background: rgba(16,185,129,0.16);
+      color: #a7f3d0;
+      border: 1px solid rgba(16,185,129,0.35);
+    }
+
+    .day-btn.cardio {
+      background: rgba(244,63,94,0.16);
+      color: #fecdd3;
+      border: 1px solid rgba(244,63,94,0.35);
+    }
+
+    .screen-title {
+      font-size: 1.45rem;
+      font-weight: 900;
+      margin: 0 0 10px;
+      color: white;
+    }
+
+    .exercise-card {
+      background: var(--card);
+      border: 1px solid #2b3a4d;
+      border-radius: 18px;
+      padding: 16px;
+      margin-bottom: 14px;
+    }
+
+    .exercise-card.primer {
+      border-color: rgba(245, 158, 11, 0.7);
+      background: rgba(245, 158, 11, 0.08);
+    }
+
+    .exercise-card.finisher {
+      border-color: rgba(139, 92, 246, 0.6);
+      background: rgba(139, 92, 246, 0.08);
+    }
+
+    .card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .exercise-name {
+      font-size: 1rem;
+      font-weight: 900;
+    }
+
+    .exercise-meta,
+    .exercise-note-hint,
+    .ghost-line {
+      font-size: 0.8rem;
+      color: var(--muted);
+      line-height: 1.35;
+      margin-top: 4px;
+    }
+
+    .exercise-note-hint {
+      color: #fcd34d;
+    }
+
+    .rest-chip {
+      background: #334155;
+      color: #e2e8f0;
+      border-radius: 999px;
+      padding: 5px 9px;
+      font-size: 0.75rem;
+      white-space: nowrap;
+    }
+
+    .set-head,
+    .set-row {
+      display: grid;
+      grid-template-columns: 32px 1fr 1fr 1fr 34px 34px;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .set-head {
+      margin-bottom: 6px;
+      color: var(--muted);
+      font-size: 0.75rem;
+      text-align: center;
+    }
+
+    .set-row {
+      margin-bottom: 6px;
+    }
+
+    .set-num {
+      text-align: center;
+      color: #dbe4f0;
+      font-size: 0.86rem;
+    }
+
+    .set-row input[type="number"] {
+      width: 100%;
+      padding: 9px 6px;
+      text-align: center;
+      font-size: 0.92rem;
+    }
+
+    .set-row input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      justify-self: center;
+      cursor: pointer;
+    }
+
+    .ghost-line {
+      margin: 2px 0 6px 38px;
+      font-style: italic;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 72px;
+      resize: vertical;
+      padding: 10px 12px;
+      font-family: inherit;
+      margin-top: 10px;
+      font-size: 0.92rem;
+    }
+
+    .add-set-btn {
+      width: 100%;
+      margin-top: 8px;
+      background: transparent;
+      color: #b8c4d4;
+      border: 1px dashed #62748c;
+      border-radius: 12px;
+      padding: 10px;
+      cursor: pointer;
+      font-weight: 700;
+    }
+
+    .simple-card {
+      background: var(--card-2);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 18px;
+      color: #d8e5f3;
+      line-height: 1.5;
+    }
+
+    .tools-card {
+      margin-top: 16px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 16px;
+    }
+
+    .tools-title {
+      font-size: 0.82rem;
+      color: var(--muted);
+      margin-bottom: 10px;
+      font-weight: 800;
+      letter-spacing: 0.4px;
+    }
+
+    .checkbox-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: #dbe4f0;
+      margin-bottom: 12px;
+    }
+
+    .checkbox-row input { accent-color: var(--primary); }
+
+    .fab {
+      position: fixed;
+      left: 50%;
+      transform: translateX(-50%);
+      bottom: 16px;
+      width: min(92%, 500px);
+      z-index: 80;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .save-btn {
+      border: none;
+      border-radius: 999px;
+      padding: 16px;
+      font-size: 1rem;
+      font-weight: 900;
+      color: white;
+      background: var(--green);
+      cursor: pointer;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.35);
+    }
+
+    .save-copy {
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.8rem;
+    }
+
+    @media (max-width: 680px) {
+      .header-row,
+      .header-row-2,
+      .toolbar {
+        align-items: stretch;
+      }
+
+      .header-row,
+      .header-row-2,
+      .toolbar,
+      .toolbar-left,
+      .toolbar-right {
+        flex-direction: column;
+      }
+
+      .auth-wrap {
+        align-items: stretch;
+        min-width: 0;
+      }
+
+      .btn-row { justify-content: stretch; }
+      .btn-row .btn { flex: 1; }
+    }
   </style>
 </head>
-
 <body>
-<header>
-  <div class="top-row">
-    <div>
-      <h1>HYBRID LOCKED</h1>
-      <div class="subtitle">Hypertrophy-first * Locked volume * Cloud sync</div>
+  <header>
+    <div class="header-row">
+      <div class="title-wrap">
+        <h1>HYBRID LOCKED V2</h1>
+        <div class="subtitle">8-cycle system • cloud synced • local backup • progression focused</div>
+      </div>
+      <div class="auth-wrap">
+        <div class="btn-row">
+          <button class="btn secondary" id="signOutBtn" type="button">Sign out</button>
+          <button class="btn" id="signInBtn" type="button">Sign in</button>
+        </div>
+        <div class="status-pill" id="userBadge">Not signed in</div>
+      </div>
     </div>
-    <div class="right">
-      <button class="btn-pill secondary" onclick="signOutUser()">Sign out</button>
-      <button class="btn-pill" onclick="signIn()"> Sign in</button>
+
+    <div class="toolbar">
+      <div class="toolbar-left">
+        <select id="cycleSelect"></select>
+        <select id="daySelect"></select>
+      </div>
+      <div class="toolbar-right">
+        <button class="btn secondary" id="exportBtn" type="button">Manual Backup</button>
+        <button class="btn secondary" id="importBtn" type="button">Restore Data</button>
+        <button class="btn warn" id="forceCloudBtn" type="button">Push Local Data to Cloud</button>
+        <input id="importFile" type="file" accept="application/json" hidden />
+      </div>
     </div>
+  </header>
+
+  <main>
+    <div class="phase-banner" id="phaseBanner"></div>
+    <div class="nav-days" id="dayNav"></div>
+    <div id="screen"></div>
+
+    <div class="tools-card">
+      <div class="tools-title">DATA SETTINGS</div>
+      <label class="checkbox-row">
+        <input type="checkbox" id="autoBackupToggle" />
+        <span>Download a backup file every time I manually save</span>
+      </label>
+      <div class="info-banner">
+        This version keeps data in local storage for offline safety and also syncs the same data to Firestore after sign-in. It also tries to read your older local data format automatically so your existing progress can still appear.
+      </div>
+    </div>
+  </main>
+
+  <div class="fab">
+    <button class="save-btn" id="saveBtn" type="button">SAVE PROGRESS</button>
+    <div class="save-copy" id="saveStatus">Local mode only</div>
   </div>
 
-  <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:10px;">
-    <select id="cycleSelect" onchange="render()">
-      <option value="1">Cycle 1</option><option value="2">Cycle 2</option><option value="3">Cycle 3</option>
-      <option value="4">Cycle 4</option><option value="5">Cycle 5</option><option value="6">Cycle 6</option>
-      <option value="7">Cycle 7</option>
-    </select>
-    <div id="userBadge"></div>
-  </div>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import {
+      getAuth,
+      onAuthStateChanged,
+      GoogleAuthProvider,
+      signInWithPopup,
+      signOut,
+      browserLocalPersistence,
+      setPersistence
+    } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import {
+      getFirestore,
+      doc,
+      getDoc,
+      setDoc,
+      serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-  <div class="cycle-nav" id="nav"></div>
-</header>
+    const firebaseConfig = {
+      apiKey: "AIzaSyCli5Ua5bVOviYLZi_i_85Iu83cNKBKZb0",
+      authDomain: "mygym-3c53d.firebaseapp.com",
+      projectId: "mygym-3c53d",
+      storageBucket: "mygym-3c53d.firebasestorage.app",
+      messagingSenderId: "231488442106",
+      appId: "1:231488442106:web:4b7bb2dea98b6089bbc343"
+    };
 
-<div class="container" id="app"></div>
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const provider = new GoogleAuthProvider();
 
-<div class="container">
-  <div class="tools">
-    <p style="font-size:0.8rem; color:#7a879a; margin-top:0;">DATA TOOLS</p>
-    <label class="switch-label">
-      <input type="checkbox" id="autoBackupToggle" class="switch-input" onchange="toggleAutoBackup()">
-      Download a backup file on manual save
-    </label>
-    <button class="btn-small" onclick="exportData()"> Manual Backup</button>
-    <button class="btn-small" onclick="document.getElementById('imp').click()"> Restore Data</button>
-    <input type="file" id="imp" style="display:none" onchange="importData(this)">
-  </div>
-</div>
+    const LEGACY_KEY = "hybrid_locked_hypertrophy_v1";
+    const APP_KEY = "hybrid_locked_v2_state";
+    const CLOUD_KEY = "hybrid_locked_v2";
+    const MAX_CYCLES = 8;
 
-<div class="fab">
-  <button class="btn-save" onclick="save(false)"> SAVE PROGRESS</button>
-  <div class="save-status" id="saveStatus">Not signed in (local only)</div>
-</div>
+    const PROGRAM = {
+      "1": {
+        title: "Day 1: Posterior Chain + Back Add-on",
+        type: "lift",
+        recovery: "Heavy hinge day. Drive strength first, then controlled volume.",
+        list: [
+          { id:"rdl", name:"Romanian Deadlift", sets:4, reps:"main", baseReps:"6-10", rest:"2-3m", note:"Slow eccentric. Push load hard in strength and hybrid phases." },
+          { id:"seated_curl", name:"Seated Leg Curl", sets:4, reps:"8-12", rest:"90-120s", note:"Last set can push hard outside deload." },
+          { id:"hip_thrust", name:"Hip Thrust / Glute Bridge", sets:3, reps:"8-12", rest:"2m" },
+          { id:"smith_row", name:"Smith Machine Row", sets:3, reps:"8-12", rest:"2m" },
+          { id:"sa_lat", name:"Single-Arm Lat Pulldown", sets:3, reps:"10-15 / side", rest:"90-120s" },
+          { id:"bulgarian", name:"Bulgarian Split Squat", sets:2, reps:"8-12 / leg", rest:"2m" },
+          { id:"calf_stand", name:"Standing Calf Raise", sets:4, reps:"10-20", rest:"60-90s" }
+        ]
+      },
+      "2": {
+        title: "Day 2: Push",
+        type: "lift",
+        recovery: "Use the first press as the performance lift. The rest stays bodybuilding-focused.",
+        list: [
+          { id:"plyo_push", name:"Plyo Pushups (Primer)", sets:2, reps:"3-5", rest:"90s", note:"Explosive only. Do not fatigue." },
+          { id:"inc_bb", name:"Incline Barbell Bench Press", sets:4, reps:"main", baseReps:"5-8", rest:"2-3m" },
+          { id:"flat_db", name:"Flat DB Press", sets:3, reps:"8-12", rest:"2m" },
+          { id:"cable_fly", name:"Cable Fly", sets:3, reps:"12-15", rest:"75-90s" },
+          { id:"cab_lat", name:"Cable Lateral Raise", sets:3, reps:"12-20", rest:"60-90s" },
+          { id:"oh_tri", name:"Overhead Cable Triceps Extension", sets:3, reps:"10-15", rest:"75-90s" },
+          { id:"tri_push", name:"Cable Triceps Pushdown", sets:3, reps:"10-15", rest:"60-90s" }
+        ]
+      },
+      "3": {
+        title: "Day 3: Recovery",
+        type: "rest",
+        desc: "Full recovery day.",
+        protocol: "Walk 30-45 minutes, mobility 10 minutes, recover hard."
+      },
+      "4": {
+        title: "Day 4: Back + Biceps",
+        type: "lift",
+        recovery: "Big back work without frying the lower back.",
+        list: [
+          { id:"lat_pull", name:"Lat Pulldown", sets:4, reps:"main", baseReps:"8-12", rest:"2m" },
+          { id:"cs_row", name:"Chest-Supported Row", sets:4, reps:"8-12", rest:"2m" },
+          { id:"seat_row", name:"Seated Cable Row", sets:3, reps:"10-12", rest:"2m" },
+          { id:"pullover", name:"Cable Pullover (FST-7)", sets:7, reps:"10-12", rest:"30-45s", note:"Count this as density work, not pure straight sets." },
+          { id:"bb_curl", name:"Barbell Curl", sets:3, reps:"6-10", rest:"2m" },
+          { id:"inc_curl", name:"Incline DB Curl", sets:2, reps:"10-12", rest:"90s" }
+        ]
+      },
+      "5": {
+        title: "Day 5: Quads",
+        type: "lift",
+        recovery: "Heavy quad pattern first, then tension and pump.",
+        list: [
+          { id:"hack", name:"Hack Squat / Pendulum Squat", sets:4, reps:"main", baseReps:"6-12", rest:"2-3m" },
+          { id:"leg_press", name:"Leg Press", sets:3, reps:"12-20", rest:"2m" },
+          { id:"lunge", name:"Walking Lunges", sets:3, reps:"12 / leg", rest:"2m" },
+          { id:"leg_ext", name:"Seated Leg Extension", sets:3, reps:"15-25", rest:"60-90s" },
+          { id:"calf_seated", name:"Seated Calf Raise", sets:4, reps:"12-20", rest:"60-90s" }
+        ]
+      },
+      "6": {
+        title: "Day 6: Arms",
+        type: "lift",
+        recovery: "Direct arm work. Keep elbows calm and quality high.",
+        list: [
+          { id:"pressdown_heavy", name:"Heavy Cable Pressdown", sets:4, reps:"main", baseReps:"6-10", rest:"2m" },
+          { id:"oh_ext", name:"Overhead Cable Extension", sets:2, reps:"10-15", rest:"90s" },
+          { id:"preacher", name:"Preacher Curl", sets:3, reps:"8-12", rest:"90s" },
+          { id:"hammer", name:"Hammer Curl", sets:3, reps:"10-12", rest:"90s" },
+          { id:"tri_fst7", name:"Tricep Pushdown (FST-7)", sets:7, reps:"12-15", rest:"30-45s" },
+          { id:"bi_fst7", name:"Cable Curl (FST-7)", sets:7, reps:"10-12", rest:"30-45s" },
+          { id:"shrugs", name:"DB Shrugs (Optional)", sets:3, reps:"12-20", rest:"90s" },
+          { id:"forearms", name:"Forearms (Optional)", sets:3, reps:"Failure", rest:"60s" }
+        ]
+      },
+      "7": {
+        title: "Day 7: Rest",
+        type: "rest",
+        desc: "Full rest day.",
+        protocol: "Light walk optional. Eat, hydrate, sleep."
+      },
+      "8": {
+        title: "Day 8: Conditioning",
+        type: "cardio",
+        desc: "Build the engine.",
+        protocol: "4x4 intervals: 4 minutes hard, 3 minutes easy x 4. Warm up 5-8 minutes and cool down 5 minutes."
+      }
+    };
 
-<script type="module">
-  // ---------------------------
-  // FIREBASE (Auth + Firestore)
-  // ---------------------------
-  import { initializeApp as fbInitializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getAuth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-  import { getFirestore, doc, getDoc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    const PHASES = {
+      1: { name: "Strength Build", copy: "Main lifts go heavier. Add two short conditioning sessions during the week.", mainReps: "4-6", accessoryBias: "normal" },
+      2: { name: "Strength Build", copy: "Push load on main lifts while staying one rep shy of breakdown.", mainReps: "4-6", accessoryBias: "normal" },
+      3: { name: "Strength Build", copy: "Final hard strength-focused cycle before shifting volume higher.", mainReps: "4-6", accessoryBias: "normal" },
+      4: { name: "Hypertrophy Peak", copy: "Return to fuller bodybuilding reps. Chase quality and muscle tension.", mainReps: "6-8", accessoryBias: "push" },
+      5: { name: "Hypertrophy Peak", copy: "Volume remains high. Last hard muscle-building cycle before resensitization.", mainReps: "6-8", accessoryBias: "push" },
+      6: { name: "Resensitization", copy: "Reduce effort and total work. No grinders, no forced reps, no drop-set chasing.", mainReps: "6-8 easy", accessoryBias: "deload" },
+      7: { name: "Hybrid Strength + Definition", copy: "Heavy first lift, then pump work. Conditioning matters here.", mainReps: "4-6", accessoryBias: "hybrid" },
+      8: { name: "Hybrid Strength + Definition", copy: "Keep performance on main lifts and sharpen work capacity.", mainReps: "4-6", accessoryBias: "hybrid" }
+    };
 
-  // Your Firebase web config
-  const firebaseConfig = {
-    apiKey: "AIzaSyCli5Ua5bVOviYLZi_i_85Iu83cNKBKZb0",
-    authDomain: "mygym-3c53d.firebaseapp.com",
-    projectId: "mygym-3c53d",
-    storageBucket: "mygym-3c53d.firebasestorage.app",
-    messagingSenderId: "231488442106",
-    appId: "1:231488442106:web:4b7bb2dea98b6089bbc343"
-  };
+    const els = {
+      cycleSelect: document.getElementById("cycleSelect"),
+      daySelect: document.getElementById("daySelect"),
+      dayNav: document.getElementById("dayNav"),
+      screen: document.getElementById("screen"),
+      phaseBanner: document.getElementById("phaseBanner"),
+      saveBtn: document.getElementById("saveBtn"),
+      saveStatus: document.getElementById("saveStatus"),
+      signInBtn: document.getElementById("signInBtn"),
+      signOutBtn: document.getElementById("signOutBtn"),
+      userBadge: document.getElementById("userBadge"),
+      autoBackupToggle: document.getElementById("autoBackupToggle"),
+      exportBtn: document.getElementById("exportBtn"),
+      importBtn: document.getElementById("importBtn"),
+      importFile: document.getElementById("importFile"),
+      forceCloudBtn: document.getElementById("forceCloudBtn")
+    };
 
-  const fbApp = fbInitializeApp(firebaseConfig);
-  const auth = getAuth(fbApp);
-  const db = getFirestore(fbApp);
-  const provider = new GoogleAuthProvider();
+    const state = {
+      userId: null,
+      cycle: "1",
+      day: "1",
+      data: {},
+      config: { autoBackup: false },
+      saveTimer: null,
+      syncInProgress: false
+    };
 
-  // ---------------------------
-  // PROGRAM (Locked 8-9 day cycle)
-  // ---------------------------
-  const exercises = {
-    "1": {
-      title: "Day 1: Posterior Chain + Back Add-on (Hams + Glutes)",
-      type: "lift",
-      banner: "Lengthened tension focus. Push hard, recover harder.",
-      list: [
-        { id:"rdl", name:"Romanian Deadlift", sets:3, reps:"6-10", rest:"2-3m", note:"RIR 1-2. 3-4s eccentric." },
-        { id:"seated_curl", name:"Seated Leg Curl", sets:4, reps:"8-12", rest:"90-120s", note:"Last set near failure." },
-        { id:"hip_thrust", name:"Hip Thrust / Glute Bridge", sets:3, reps:"8-12", rest:"2m" },
-        { id:"smith_row", name:"Smith Machine Row (Chest-Supported if possible)", sets:3, reps:"8-12", rest:"2m", note:"Back add-on. Keep torso supported; no lower-back swing." },
-        { id:"sa_lat", name:"Kneeling Single-Arm Lat Pulldown", sets:3, reps:"10-15 / side", rest:"90-120s", note:"Lat bias. Drive elbow to hip; full stretch." },
-        { id:"bulgarian", name:"Bulgarian Split Squat", sets:2, reps:"8-12 / leg", rest:"2m", note:"Controlled. Stop at RIR 1-2." },
-        { id:"calf_stand", name:"Standing Calf Raise", sets:4, reps:"10-20", rest:"60-90s", note:"2s stretch + 2s squeeze." }
-      ]
-    },
+    function createEmptyState() {
+      return {
+        lastActiveDay: "1",
+        lastActiveCycle: "1",
+        _config: { autoBackup: false }
+      };
+    }
 
-    "2": {
-      title: "Day 2: PUSH (Chest-Dominant)",
-      type: "lift",
-      banner: "Primer -> heavy incline -> hypertrophy work.",
-      list: [
-        { id:"plyo_push", name:"Plyo Pushups (Primer)", sets:2, reps:"3-5", rest:"90s", note:"Not to fatigue." },
-        { id:"inc_bb", name:"Incline Barbell Bench Press", sets:4, reps:"5-8", rest:"2-3m" },
-        { id:"flat_db", name:"Flat DB Press", sets:3, reps:"8-12", rest:"2m" },
-        { id:"cable_fly", name:"Cable Fly (lengthened bias)", sets:3, reps:"12-15", rest:"75-90s" },
-        { id:"cab_lat", name:"Cable Lateral Raise", sets:3, reps:"12-20", rest:"60-90s", note:"Cable slightly behind body, strict form." },
-        { id:"oh_tri", name:"Overhead Cable Triceps Extension", sets:3, reps:"10-15", rest:"75-90s" },
-        { id:"tri_push", name:"Cable Triceps Pushdown", sets:3, reps:"10-15", rest:"60-90s", note:"Elbows pinned, full lockout." },
-      ]
-    },
-
-    "3": {
-      title: "Day 3: OFF (Recovery)",
-      type: "rest",
-      desc: "Full recovery day",
-      protocol: "Walk 30-45 min * Mobility 10 min * Sleep + calories. This day drives growth."
-    },
-
-    "4": {
-      title: "Day 4: BACK + BICEPS (Lat Focus)",
-      type: "lift",
-      banner: "Big back volume without lower-back fatigue.",
-      list: [
-        { id:"lat_pull", name:"Lat Pulldown", sets:4, reps:"8-12", rest:"2m" },
-        { id:"cs_row", name:"Chest-Supported Row (Smith/Machine)", sets:4, reps:"8-12", rest:"2m" },
-        { id:"seat_row", name:"Seated Cable Row", sets:3, reps:"10-12", rest:"2m" },
-        { id:"pullover", name:"Cable Pullover (FST-7)", sets:7, reps:"10-12", rest:"30-45s", note:"Counts like ~3 effective sets." },
-        { id:"bb_curl", name:"Barbell Curl", sets:3, reps:"6-10", rest:"2m" },
-        { id:"inc_curl", name:"Incline DB Curl", sets:2, reps:"10-12", rest:"90s" }
-      ]
-    },
-
-    "5": {
-      title: "Day 5: QUADS (Deep + Pump)",
-      type: "lift",
-      banner: "Depth + tension + pump. Keep form strict.",
-      list: [
-        { id:"hack", name:"Hack Squat / Pendulum Squat", sets:4, reps:"6-12", rest:"2-3m", note:"Full depth, controlled." },
-        { id:"leg_press", name:"Leg Press (feet low)", sets:3, reps:"12-20", rest:"2m" },
-        { id:"lunge", name:"Walking Lunges", sets:3, reps:"12 / leg", rest:"2m" },
-        { id:"leg_ext", name:"Seated Leg Extension", sets:3, reps:"15-25", rest:"60-90s", note:"Chase the quad pump." },
-        { id:"calf_seated", name:"Seated Calf Raise", sets:4, reps:"12-20", rest:"60-90s" }
-      ]
-    },
-
-    "6": {
-      title: "Day 6: ARMS (Bodybuilder Day)",
-      type: "lift",
-      banner: "Direct arm volume. Avoid elbow flare-ups.",
-      list: [
-        { id:"pressdown_heavy", name:"Heavy Cable Pressdown", sets:4, reps:"6-10", rest:"2m" },
-        { id:"oh_ext", name:"Overhead Cable Extension", sets:2, reps:"10-15", rest:"90s" },
-        { id:"preacher", name:"Preacher Curl", sets:3, reps:"8-12", rest:"90s" },
-        { id:"hammer", name:"Hammer Curl", sets:3, reps:"10-12", rest:"90s" },
-        { id:"tri_fst7", name:"Tricep Pushdown (FST-7)", sets:7, reps:"12-15", rest:"30-45s", note:"Counts like ~2-3 effective sets." },
-        { id:"bi_fst7", name:"Cable Curl (FST-7)", sets:7, reps:"10-12", rest:"30-45s", note:"Counts like ~2-3 effective sets." },
-        { id:"shrugs", name:"DB Shrugs (Optional)", sets:3, reps:"12-20", rest:"90s" },
-        { id:"forearms", name:"Forearms (Optional)", sets:3, reps:"Failure", rest:"60s" }
-      ]
-    },
-
-    "7": {
-      title: "Day 7: OFF (Rest)",
-      type: "rest",
-      desc: "Full rest day",
-      protocol: "Light walk only if you want. Hydrate, sleep, eat."
-    },
-
-    "8": { title: "Day 8: VO2max", type: "cardio", desc: "Build the engine.", protocol: "4x4 Intervals (Zone 5): 4 min hard / 3 min easy x 4. Use bike, rower, or incline treadmill. Warm up 5-8 min, cool down 5 min." }};
-
-  const KEY = "hybrid_locked_hypertrophy_v1";
-  let userId = null;
-
-  let state = { cycle:"1", day:"1", config:{ autoBackup:false }, data:{} };
-
-  function cloudDocRef() {
-    return doc(db, "users", userId, "programs", KEY);
-  }
-
-  async function cloudLoad() {
-    if (!userId) return false;
-    try {
-      const snap = await getDoc(cloudDocRef());
-      if (snap.exists()) {
-        const payload = snap.data();
-        if (payload && payload.data) {
-          state.data = payload.data;
-          if (state.data._config) state.config = state.data._config;
-          const t = document.getElementById("autoBackupToggle");
-          if (t) t.checked = !!state.config.autoBackup;
-          return true;
+    function migrateAnyStoredData() {
+      const v2Raw = localStorage.getItem(APP_KEY);
+      if (v2Raw) {
+        try {
+          return JSON.parse(v2Raw);
+        } catch {
+          return createEmptyState();
         }
       }
-    } catch (e) {
-      console.error("Cloud load failed", e);
-    }
-    return false;
-  }
 
-  async function cloudSave() {
-    if (!userId) return;
-    try {
-      await setDoc(cloudDocRef(), { data: state.data, updatedAt: serverTimestamp() }, { merge: true });
-    } catch (e) {
-      console.error("Cloud save failed", e);
-    }
-  }
+      const legacyRaw = localStorage.getItem(LEGACY_KEY);
+      if (!legacyRaw) return createEmptyState();
 
-  async function signIn() {
-    try {
-      await signInWithPopup(auth, provider);
-    } catch (e) {
-      console.error("Sign-in failed", e);
-      alert("Sign-in failed: " + (e?.message || e));
-    }
-  }
-
-  async function signOutUser() {
-    try { await signOut(auth); } catch (e) { console.error("Sign-out failed", e); }
-  }
-
-  function renderNav() {
-    const nav = document.getElementById("nav");
-    nav.innerHTML = "";
-    for(let i=1; i<=8; i++) {
-      const b = document.createElement("button");
-      b.innerText = `Day ${i}`;
-      const dayType = exercises[String(i)].type;
-      b.className = "day-btn" + (dayType === "rest" ? " rest" : (dayType === "cardio" ? " cardio" : ""));
-      b.onclick = () => { state.day = String(i); render(); };
-      nav.appendChild(b);
-    }
-  }
-
-  function getID(exID) { return `c${state.cycle}_d${state.day}_${exID}`; }
-  function getDoneKey() { return `c${state.cycle}_d${state.day}_done`; }
-
-  function getGhost(exID, setIdx) {
-    const prevCycle = Number(state.cycle) - 1;
-    if (prevCycle < 1) return null;
-    const prevID = `c${prevCycle}_d${state.day}_${exID}`;
-    const prev = state.data[prevID];
-    if (!prev || !prev.sets || !prev.sets[setIdx] || !prev.sets[setIdx].w) return null;
-    return `C${prevCycle}: ${prev.sets[setIdx].w} x ${prev.sets[setIdx].r}`;
-  }
-
-  function render() {
-    const app = document.getElementById("app");
-    app.innerHTML = "";
-
-    state.cycle = document.getElementById("cycleSelect").value;
-
-    document.querySelectorAll(".day-btn").forEach(b => {
-      b.classList.remove("active");
-      if (b.innerText === `Day ${state.day}`) b.classList.add("active");
-    });
-
-    const dayData = exercises[state.day];
-
-    const h2 = document.createElement("h2");
-    h2.innerText = dayData.title;
-    h2.style.color = dayData.type === "lift" ? "var(--primary)" : (dayData.type === "rest" ? "var(--rest)" : "var(--cardio)");
-    app.appendChild(h2);
-
-    if (dayData.type === "lift" && dayData.banner) {
-      app.innerHTML += `<div class="banner"><span></span><div>${dayData.banner}</div></div>`;
-    }
-    if (dayData.type === "rest") {
-      app.innerHTML += `<div class="banner rest"><span></span><div><strong>${dayData.desc}</strong> - ${dayData.protocol}</div></div>`;
-      const done = !!state.data[getDoneKey()];
-      app.innerHTML += `
-        <div class="info-card">
-          <p style="margin-top:0;">Mark the day complete if you want to track consistency.</p>
-          <label><input type="checkbox" ${done ? "checked" : ""} onchange="toggleDone(this)"> Mark Complete</label>
-        </div>
-      `;
-      return;
-    }
-    if (dayData.type === "cardio") {
-      app.innerHTML += `<div class="banner cardio"><span></span><div><strong>${dayData.desc}</strong> - ${dayData.protocol}</div></div>`;
-      const done = !!state.data[getDoneKey()];
-      app.innerHTML += `
-        <div class="info-card">
-          <p style="margin-top:0;">Mark complete after finishing your intervals.</p>
-          <label><input type="checkbox" ${done ? "checked" : ""} onchange="toggleDone(this)"> Mark Complete</label>
-        </div>
-      `;
-      return;
+      try {
+        const parsed = JSON.parse(legacyRaw);
+        if (!parsed || typeof parsed !== "object") return createEmptyState();
+        localStorage.setItem(APP_KEY, JSON.stringify(parsed));
+        return parsed;
+      } catch {
+        return createEmptyState();
+      }
     }
 
-    dayData.list.forEach((ex) => {
-      const key = getID(ex.id);
-      const current = state.data[key] || {};
-      const currentSets = current.sets || [];
-      const currentNote = current.note || "";
-      const count = currentSets.length || ex.sets;
+    function persistLocal() {
+      state.data._config = state.config;
+      state.data.lastActiveDay = state.day;
+      state.data.lastActiveCycle = state.cycle;
+      localStorage.setItem(APP_KEY, JSON.stringify(state.data));
+    }
 
-      let setsHtml = `<div class="set-grid"><span>#</span><span>LBS</span><span>REPS</span><span>RPE</span><span>DS</span><span></span></div>`;
+    function cloudRef() {
+      return doc(db, "users", state.userId, "programs", CLOUD_KEY);
+    }
 
-      for (let i = 0; i < count; i++) {
-        const s = currentSets[i] || {};
-        const ghost = getGhost(ex.id, i);
-        if (ghost) setsHtml += `<div class="history">${ghost}</div>`;
+    async function loadCloud() {
+      if (!state.userId) return false;
+      try {
+        const snap = await getDoc(cloudRef());
+        if (!snap.exists()) return false;
+        const payload = snap.data();
+        if (!payload || !payload.data) return false;
+        state.data = payload.data;
+        state.config = state.data._config || { autoBackup: false };
+        persistLocal();
+        return true;
+      } catch (error) {
+        console.error("Cloud load failed", error);
+        return false;
+      }
+    }
 
-        setsHtml += `
-          <div class="set-grid row" data-id="${ex.id}">
-            <span>${i + 1}</span>
-            <input type="number" class="w" value="${s.w || ""}" placeholder="-" oninput="save(true)">
-            <input type="number" class="r" value="${s.r || ""}" placeholder="-" oninput="save(true)">
-            <input type="number" class="rpe" value="${s.rpe || ""}" placeholder="-" oninput="save(true)">
-            <input type="checkbox" class="inp-check inp-ds" ${s.ds ? "checked" : ""} onchange="save(true)">
-            <input type="checkbox" class="inp-check inp-done" ${s.done ? "checked" : ""} onchange="save(true)">
-          </div>
-        `;
+    async function saveCloud() {
+      if (!state.userId) return;
+      if (state.syncInProgress) return;
+      state.syncInProgress = true;
+      try {
+        await setDoc(cloudRef(), {
+          data: state.data,
+          updatedAt: serverTimestamp(),
+          schemaVersion: 2
+        }, { merge: true });
+      } catch (error) {
+        console.error("Cloud save failed", error);
+      } finally {
+        state.syncInProgress = false;
+      }
+    }
+
+    function cycleLabel(cycle) {
+      return `Cycle ${cycle} • ${PHASES[cycle].name}`;
+    }
+
+    function getExerciseKey(exerciseId) {
+      return `c${state.cycle}_d${state.day}_${exerciseId}`;
+    }
+
+    function getDoneKey() {
+      return `c${state.cycle}_d${state.day}_done`;
+    }
+
+    function getConditioningNoteKey() {
+      return `c${state.cycle}_d${state.day}_conditioning_note`;
+    }
+
+    function getPreviousCycleGhost(exerciseId, setIndex) {
+      const previousCycle = Number(state.cycle) - 1;
+      if (previousCycle < 1) return null;
+      const key = `c${previousCycle}_d${state.day}_${exerciseId}`;
+      const item = state.data[key];
+      const set = item?.sets?.[setIndex];
+      if (!set || (!set.w && !set.r)) return null;
+      return `Cycle ${previousCycle}: ${set.w || "-"} x ${set.r || "-"}${set.rpe ? ` @ RPE ${set.rpe}` : ""}`;
+    }
+
+    function getPhase() {
+      return PHASES[Number(state.cycle)] || PHASES[1];
+    }
+
+    function resolveRepText(exercise) {
+      const phase = getPhase();
+      if (exercise.reps !== "main") return exercise.reps;
+      return phase.mainReps;
+    }
+
+    function getStoredExercise(exerciseId) {
+      return state.data[getExerciseKey(exerciseId)] || { sets: [], note: "" };
+    }
+
+    function getCardClass(name) {
+      const lower = name.toLowerCase();
+      if (lower.includes("primer")) return "exercise-card primer";
+      if (name.includes("FST-7") || name.includes("Optional")) return "exercise-card finisher";
+      return "exercise-card";
+    }
+
+    function populateSelectors() {
+      els.cycleSelect.innerHTML = "";
+      for (let i = 1; i <= MAX_CYCLES; i += 1) {
+        const opt = document.createElement("option");
+        opt.value = String(i);
+        opt.textContent = cycleLabel(i);
+        els.cycleSelect.appendChild(opt);
       }
 
-      let cardClass = "exercise-card";
-      if ((ex.name || "").toLowerCase().includes("primer")) cardClass = "primer-card";
-      if ((ex.name || "").includes("FST-7") || (ex.name || "").includes("Optional")) cardClass = "finisher-card";
-
-      const noteHtml = ex.note ? `<span class="ex-meta" style="color:#eab308"> ${ex.note}</span>` : "";
-
-      const div = document.createElement("div");
-      div.className = cardClass;
-      div.innerHTML = `
-        <div class="ex-header">
-          <div>
-            <span class="ex-name">${ex.name}</span>
-            <span class="ex-meta">${ex.reps} * ${ex.sets} sets</span>
-            ${noteHtml}
-          </div>
-          <div class="ex-rest"> ${ex.rest || "2m"}</div>
-        </div>
-        <div id="sets-${ex.id}">${setsHtml}</div>
-        <button class="btn-add" onclick="addSet('${ex.id}')">+ Add Set</button>
-        <textarea id="note-${ex.id}" class="ex-note" placeholder="Notes (setup, cues, pain, machine settings...)" oninput="save(true)">${currentNote}</textarea>
-      `;
-      app.appendChild(div);
-    });
-  }
-
-  function addSet(id) {
-    const box = document.getElementById(`sets-${id}`);
-    const num = box.querySelectorAll(".row").length + 1;
-    box.insertAdjacentHTML("beforeend", `
-      <div class="set-grid row" data-id="${id}">
-        <span>${num}</span>
-        <input type="number" class="w" oninput="save(true)">
-        <input type="number" class="r" oninput="save(true)">
-        <input type="number" class="rpe" oninput="save(true)">
-        <input type="checkbox" class="inp-check inp-ds" onchange="save(true)">
-        <input type="checkbox" class="inp-check inp-done" onchange="save(true)">
-      </div>
-    `);
-    save(true);
-  }
-
-  function toggleDone(el) {
-    state.data[getDoneKey()] = el.checked;
-    save(false);
-  }
-
-  function toggleAutoBackup() {
-    state.config.autoBackup = document.getElementById("autoBackupToggle").checked;
-    state.data._config = state.config;
-    localStorage.setItem(KEY, JSON.stringify(state.data));
-    cloudSave();
-  }
-
-  function save(isAuto = false) {
-    const dayData = exercises[state.day];
-
-    if (dayData.type === "lift") {
-      dayData.list.forEach((ex) => {
-        const rows = document.querySelectorAll(`.row[data-id="${ex.id}"]`);
-        const sets = [];
-        rows.forEach(r => {
-          sets.push({
-            w: r.querySelector(".w")?.value || "",
-            r: r.querySelector(".r")?.value || "",
-            rpe: r.querySelector(".rpe")?.value || "",
-            ds: !!r.querySelector(".inp-ds")?.checked,
-            done: !!r.querySelector(".inp-done")?.checked
-          });
-        });
-
-        const noteVal = document.getElementById(`note-${ex.id}`)?.value || "";
-        state.data[getID(ex.id)] = { sets, note: noteVal };
+      els.daySelect.innerHTML = "";
+      Object.entries(PROGRAM).forEach(([day, item]) => {
+        const opt = document.createElement("option");
+        opt.value = day;
+        opt.textContent = item.title;
+        els.daySelect.appendChild(opt);
       });
     }
 
-    state.data.lastActiveDay = state.day;
-    localStorage.setItem(KEY, JSON.stringify(state.data));
-    cloudSave();
-
-    const status = document.getElementById("saveStatus");
-    const now = new Date();
-    const time = now.getHours() + ":" + String(now.getMinutes()).padStart(2, "0");
-
-    if (isAuto) {
-      if (status) status.innerText = userId ? `Auto-saved (cloud) at ${time}` : `Auto-saved (local) at ${time}`;
-      return;
+    function renderDayNav() {
+      els.dayNav.innerHTML = "";
+      Object.entries(PROGRAM).forEach(([day, item]) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = `day-btn${item.type === "rest" ? " rest" : item.type === "cardio" ? " cardio" : ""}${state.day === day ? " active" : ""}`;
+        btn.textContent = `Day ${day}`;
+        btn.addEventListener("click", () => {
+          state.day = day;
+          persistLocal();
+          render();
+        });
+        els.dayNav.appendChild(btn);
+      });
     }
 
-    const btn = document.querySelector(".btn-save");
-    if (state.config.autoBackup) {
-      exportData();
-      btn.innerText = "[OK] SAVED + DOWNLOADED";
-    } else {
-      btn.innerText = "[OK] SAVED";
+    function renderPhaseBanner() {
+      const phase = getPhase();
+      els.phaseBanner.innerHTML = `
+        <div class="phase-title">${cycleLabel(Number(state.cycle))}</div>
+        <div class="phase-copy">${phase.copy}</div>
+      `;
     }
-    if (status) status.innerText = userId ? `Manual save (cloud) at ${time}` : `Manual save (local) at ${time}`;
-    setTimeout(() => btn.innerText = " SAVE PROGRESS", 1800);
-  }
 
-  function exportData() {
-    const blob = new Blob([localStorage.getItem(KEY) || "{}"], { type: "application/json" });
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = `hybrid_locked_backup_${new Date().toISOString().slice(0,10)}.json`;
-    a.click();
-  }
+    function renderRestOrCardio(dayData) {
+      const key = getDoneKey();
+      const noteKey = getConditioningNoteKey();
+      const isDone = !!state.data[key];
+      const savedNote = state.data[noteKey] || "";
 
-  function importData(input) {
-    const reader = new FileReader();
-    reader.onload = e => {
-      if (confirm("Overwrite current data for this program page?")) {
-        localStorage.setItem(KEY, e.target.result);
-        location.reload();
-      }
-    };
-    reader.readAsText(input.files[0]);
-  }
+      const wrapper = document.createElement("div");
+      wrapper.className = "simple-card";
+      wrapper.innerHTML = `
+        <div style="font-size:1.05rem;font-weight:900;margin-bottom:8px;">${dayData.desc}</div>
+        <div style="margin-bottom:14px;">${dayData.protocol}</div>
+        <label class="checkbox-row" style="margin-bottom:14px;">
+          <input type="checkbox" id="dayDoneToggle" ${isDone ? "checked" : ""} />
+          <span>Mark this day complete</span>
+        </label>
+        <textarea id="simpleDayNote" placeholder="Notes, intervals completed, recovery notes, energy, soreness...">${savedNote}</textarea>
+      `;
+      els.screen.appendChild(wrapper);
 
-  function init() {
-    const stored = localStorage.getItem(KEY);
-    if (stored) {
-      try { state.data = JSON.parse(stored); } catch { state.data = {}; }
+      document.getElementById("dayDoneToggle").addEventListener("change", (e) => {
+        state.data[key] = e.target.checked;
+        queueAutoSave();
+      });
+
+      document.getElementById("simpleDayNote").addEventListener("input", (e) => {
+        state.data[noteKey] = e.target.value;
+        queueAutoSave();
+      });
     }
-    if (state.data._config) state.config = state.data._config;
-    const t = document.getElementById("autoBackupToggle");
-    if (t) t.checked = !!state.config.autoBackup;
 
-    renderNav();
-    if (state.data.lastActiveDay) state.day = state.data.lastActiveDay;
-    render();
+    function renderLiftDay(dayData) {
+      dayData.list.forEach((exercise) => {
+        const stored = getStoredExercise(exercise.id);
+        const setCount = Math.max(stored.sets?.length || 0, exercise.sets);
+        const card = document.createElement("div");
+        card.className = getCardClass(exercise.name);
 
-    setInterval(() => save(true), 10000);
+        const setsHtml = [];
+        setsHtml.push(`
+          <div class="set-head">
+            <div>#</div>
+            <div>LBS</div>
+            <div>REPS</div>
+            <div>RPE</div>
+            <div>DS</div>
+            <div>✓</div>
+          </div>
+        `);
 
-    onAuthStateChanged(auth, async (user) => {
-      const status = document.getElementById("saveStatus");
-      const badge = document.getElementById("userBadge");
-
-      if (user) {
-        userId = user.uid;
-        if (badge) badge.innerText = user.email ? `Signed in: ${user.email}` : "Signed in";
-        if (status) status.innerText = "Signed in. Syncing...";
-
-        const hadLocalData = Object.keys(state.data || {}).length > 0;
-        const ok = await cloudLoad();
-
-        if (!ok && hadLocalData) {
-          await cloudSave();
+        for (let i = 0; i < setCount; i += 1) {
+          const set = stored.sets?.[i] || {};
+          const ghost = getPreviousCycleGhost(exercise.id, i);
+          if (ghost) {
+            setsHtml.push(`<div class="ghost-line">${ghost}</div>`);
+          }
+          setsHtml.push(`
+            <div class="set-row" data-exercise-id="${exercise.id}" data-set-index="${i}">
+              <div class="set-num">${i + 1}</div>
+              <input type="number" class="inp-weight" value="${set.w || ""}" inputmode="decimal" />
+              <input type="number" class="inp-reps" value="${set.r || ""}" inputmode="numeric" />
+              <input type="number" class="inp-rpe" value="${set.rpe || ""}" inputmode="decimal" />
+              <input type="checkbox" class="inp-ds" ${set.ds ? "checked" : ""} />
+              <input type="checkbox" class="inp-done" ${set.done ? "checked" : ""} />
+            </div>
+          `);
         }
 
-        renderNav();
-        if (state.data.lastActiveDay) state.day = state.data.lastActiveDay;
-        render();
+        card.innerHTML = `
+          <div class="card-top">
+            <div>
+              <div class="exercise-name">${exercise.name}</div>
+              <div class="exercise-meta">${resolveRepText(exercise)} • ${exercise.sets} base sets</div>
+              ${exercise.note ? `<div class="exercise-note-hint">${exercise.note}</div>` : ""}
+            </div>
+            <div class="rest-chip">${exercise.rest || "2m"}</div>
+          </div>
+          ${setsHtml.join("")}
+          <button class="add-set-btn" type="button" data-add-set="${exercise.id}">+ Add Set</button>
+          <textarea data-note-for="${exercise.id}" placeholder="Notes: machine settings, cues, pain, PR, technique...">${stored.note || ""}</textarea>
+        `;
 
-        if (status) status.innerText = "Synced";
+        els.screen.appendChild(card);
+      });
+
+      els.screen.querySelectorAll("[data-add-set]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const id = btn.getAttribute("data-add-set");
+          const stored = getStoredExercise(id);
+          stored.sets = stored.sets || [];
+          stored.sets.push({ w: "", r: "", rpe: "", ds: false, done: false });
+          state.data[getExerciseKey(id)] = stored;
+          persistLocal();
+          render();
+          queueAutoSave();
+        });
+      });
+
+      els.screen.querySelectorAll(".set-row input, textarea[data-note-for]").forEach((node) => {
+        node.addEventListener("input", queueAutoSave);
+        node.addEventListener("change", queueAutoSave);
+      });
+    }
+
+    function collectCurrentViewIntoState() {
+      const dayData = PROGRAM[state.day];
+      if (!dayData) return;
+
+      if (dayData.type === "lift") {
+        dayData.list.forEach((exercise) => {
+          const rows = [...els.screen.querySelectorAll(`.set-row[data-exercise-id="${exercise.id}"]`)];
+          const sets = rows.map((row) => ({
+            w: row.querySelector(".inp-weight")?.value || "",
+            r: row.querySelector(".inp-reps")?.value || "",
+            rpe: row.querySelector(".inp-rpe")?.value || "",
+            ds: !!row.querySelector(".inp-ds")?.checked,
+            done: !!row.querySelector(".inp-done")?.checked
+          }));
+          const note = els.screen.querySelector(`textarea[data-note-for="${exercise.id}"]`)?.value || "";
+          state.data[getExerciseKey(exercise.id)] = { sets, note };
+        });
       } else {
-        userId = null;
-        if (badge) badge.innerText = "";
-        if (status) status.innerText = "Not signed in (local only)";
+        const doneToggle = document.getElementById("dayDoneToggle");
+        const noteArea = document.getElementById("simpleDayNote");
+        state.data[getDoneKey()] = !!doneToggle?.checked;
+        state.data[getConditioningNoteKey()] = noteArea?.value || "";
       }
-    });
-  }
 
-  window.signIn = signIn;
-  window.signOutUser = signOutUser;
-  window.render = render;
-  window.addSet = addSet;
-  window.save = save;
-  window.toggleDone = toggleDone;
-  window.toggleAutoBackup = toggleAutoBackup;
-  window.exportData = exportData;
-  window.importData = importData;
+      persistLocal();
+    }
 
-  init();
-</script>
+    function render() {
+      els.cycleSelect.value = state.cycle;
+      els.daySelect.value = state.day;
+      els.autoBackupToggle.checked = !!state.config.autoBackup;
+      renderPhaseBanner();
+      renderDayNav();
+      els.screen.innerHTML = "";
+
+      const dayData = PROGRAM[state.day];
+      const title = document.createElement("h2");
+      title.className = "screen-title";
+      title.textContent = dayData.title;
+      els.screen.appendChild(title);
+
+      const info = document.createElement("div");
+      info.className = "info-banner";
+      if (dayData.type === "lift") {
+        info.textContent = `${dayData.recovery} Main-lift target for this cycle: ${getPhase().mainReps}.`;
+      } else {
+        info.textContent = dayData.protocol;
+      }
+      els.screen.appendChild(info);
+
+      if (dayData.type === "lift") {
+        renderLiftDay(dayData);
+      } else {
+        renderRestOrCardio(dayData);
+      }
+    }
+
+    function setSaveCopy(message) {
+      els.saveStatus.textContent = message;
+    }
+
+    async function doSave({ manual = false } = {}) {
+      collectCurrentViewIntoState();
+      const now = new Date();
+      const clock = `${now.getHours()}:${String(now.getMinutes()).padStart(2, "0")}`;
+
+      if (manual) {
+        els.saveBtn.textContent = "SAVED";
+        window.setTimeout(() => {
+          els.saveBtn.textContent = "SAVE PROGRESS";
+        }, 1600);
+      }
+
+      if (state.userId) {
+        await saveCloud();
+        setSaveCopy(`${manual ? "Manual" : "Auto"} save to local + cloud at ${clock}`);
+      } else {
+        setSaveCopy(`${manual ? "Manual" : "Auto"} save to local at ${clock}`);
+      }
+
+      if (manual && state.config.autoBackup) {
+        exportData();
+      }
+    }
+
+    function queueAutoSave() {
+      if (state.saveTimer) clearTimeout(state.saveTimer);
+      state.saveTimer = setTimeout(() => {
+        doSave({ manual: false });
+      }, 500);
+    }
+
+    function exportData() {
+      collectCurrentViewIntoState();
+      const blob = new Blob([JSON.stringify(state.data, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `hybrid_locked_v2_backup_${new Date().toISOString().slice(0,10)}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function importData(file) {
+      const reader = new FileReader();
+      reader.onload = async (event) => {
+        try {
+          const parsed = JSON.parse(event.target.result);
+          if (!parsed || typeof parsed !== "object") throw new Error("Invalid JSON");
+          state.data = parsed;
+          state.config = state.data._config || { autoBackup: false };
+          state.day = state.data.lastActiveDay || "1";
+          state.cycle = state.data.lastActiveCycle || "1";
+          persistLocal();
+          render();
+          await doSave({ manual: true });
+        } catch (error) {
+          console.error("Import failed", error);
+          alert("Import failed. Please make sure this is a valid backup JSON file.");
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    async function handleSignIn() {
+      try {
+        await setPersistence(auth, browserLocalPersistence);
+        await signInWithPopup(auth, provider);
+      } catch (error) {
+        console.error("Sign-in failed", error);
+        alert(`Sign-in failed: ${error?.message || error}`);
+      }
+    }
+
+    async function handleSignOut() {
+      try {
+        await signOut(auth);
+      } catch (error) {
+        console.error("Sign-out failed", error);
+      }
+    }
+
+    async function pushLocalToCloud() {
+      if (!state.userId) {
+        alert("Sign in first, then push local data to the cloud.");
+        return;
+      }
+      collectCurrentViewIntoState();
+      await saveCloud();
+      setSaveCopy("Local data pushed to cloud");
+    }
+
+    function wireEvents() {
+      els.cycleSelect.addEventListener("change", () => {
+        collectCurrentViewIntoState();
+        state.cycle = els.cycleSelect.value;
+        persistLocal();
+        render();
+      });
+
+      els.daySelect.addEventListener("change", () => {
+        collectCurrentViewIntoState();
+        state.day = els.daySelect.value;
+        persistLocal();
+        render();
+      });
+
+      els.saveBtn.addEventListener("click", () => doSave({ manual: true }));
+      els.signInBtn.addEventListener("click", handleSignIn);
+      els.signOutBtn.addEventListener("click", handleSignOut);
+      els.exportBtn.addEventListener("click", exportData);
+      els.importBtn.addEventListener("click", () => els.importFile.click());
+      els.importFile.addEventListener("change", (e) => {
+        const file = e.target.files?.[0];
+        if (file) importData(file);
+        e.target.value = "";
+      });
+      els.autoBackupToggle.addEventListener("change", () => {
+        state.config.autoBackup = els.autoBackupToggle.checked;
+        persistLocal();
+        queueAutoSave();
+      });
+      els.forceCloudBtn.addEventListener("click", pushLocalToCloud);
+    }
+
+    async function boot() {
+      state.data = migrateAnyStoredData();
+      state.config = state.data._config || { autoBackup: false };
+      state.day = state.data.lastActiveDay || "1";
+      state.cycle = state.data.lastActiveCycle || "1";
+      persistLocal();
+      populateSelectors();
+      wireEvents();
+      render();
+
+      setInterval(() => {
+        doSave({ manual: false });
+      }, 15000);
+
+      onAuthStateChanged(auth, async (user) => {
+        state.userId = user?.uid || null;
+
+        if (user) {
+          els.userBadge.textContent = user.email ? `Signed in: ${user.email}` : "Signed in";
+          setSaveCopy("Signed in. Syncing...");
+
+          const hadLocalData = Object.keys(state.data || {}).length > 0;
+          const cloudLoaded = await loadCloud();
+
+          if (!cloudLoaded && hadLocalData) {
+            await saveCloud();
+          }
+
+          state.day = state.data.lastActiveDay || state.day;
+          state.cycle = state.data.lastActiveCycle || state.cycle;
+          persistLocal();
+          render();
+          setSaveCopy("Synced");
+        } else {
+          els.userBadge.textContent = "Not signed in";
+          setSaveCopy("Local mode only");
+        }
+      });
+    }
+
+    boot();
+  </script>
 </body>
 </html>
+  

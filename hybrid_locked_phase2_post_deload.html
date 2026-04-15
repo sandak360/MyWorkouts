@@ -3,65 +3,376 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Hybrid Locked Hypertrophy Phase 2 (Cloud Synced)</title>
+  <title>Hybrid Locked Phase 2 (Post-Deload)</title>
   <style>
     :root{
-      --primary:#8b5cf6; --cardio:#f43f5e; --rest:#10b981;
-      --bg:#0f172a; --card:#1e293b; --text:#f1f5f9; --muted:#9aa4b2; --input-bg:#334155;
+      --primary:#8b5cf6;
+      --cardio:#f43f5e;
+      --rest:#10b981;
+      --bg:#0f172a;
+      --card:#1e293b;
+      --text:#f1f5f9;
+      --muted:#9aa4b2;
+      --input-bg:#334155;
       --border:#2b3647;
+      --warn:#f59e0b;
     }
-    body{ font-family:-apple-system,BlinkMacSystemFont,sans-serif; background:var(--bg); color:var(--text); margin:0; padding-bottom:170px; }
-    header{ background:var(--card); padding:15px; position:sticky; top:0; z-index:100; border-bottom:1px solid #333; }
-    .top-row{ display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:10px; }
-    h1{ margin:0; font-size:1.05rem; color:var(--primary); font-weight:900; letter-spacing:.4px; }
-    select{ background:var(--input-bg); color:white; padding:6px 10px; border-radius:10px; border:1px solid #555; }
-    .right{ display:flex; align-items:center; gap:8px; }
-    .btn-pill{ background:linear-gradient(135deg,#6366f1,#8b5cf6); color:white; border:none; padding:7px 12px; border-radius:999px; font-weight:900; cursor:pointer; font-size:0.82rem; }
-    .btn-pill.secondary{ background:#2b3647; border:1px solid #43526a; color:#d1d5db; }
-    #userBadge{ font-size:0.78rem; color:var(--muted); text-align:right; }
 
-    .cycle-nav{ display:flex; overflow-x:auto; gap:6px; padding-bottom:5px; }
-    .day-btn{ background:var(--input-bg); color:var(--muted); border:none; padding:10px 14px; border-radius:12px; white-space:nowrap; cursor:pointer; }
-    .day-btn.active{ background:var(--primary); color:white; font-weight:900; }
-    .day-btn.cardio{ background:rgba(244,63,94,0.25); color:#fecdd3; border:1px solid rgba(244,63,94,0.45); }
-    .day-btn.rest{ background:rgba(16,185,129,0.20); color:#a7f3d0; border:1px solid rgba(16,185,129,0.45); }
+    * { box-sizing:border-box; }
 
-    .container{ padding:15px; max-width:760px; margin:0 auto; }
-    .banner{ border-radius:12px; padding:10px; margin-bottom:15px; border:1px solid var(--border); background:rgba(255,255,255,0.04); font-size:0.92rem; color:#dbeafe; display:flex; gap:10px; align-items:center; }
-    .banner.rest{ color:#a7f3d0; border-color:rgba(16,185,129,0.45); background:rgba(16,185,129,0.10); }
-    .banner.cardio{ color:#fecdd3; border-color:rgba(244,63,94,0.45); background:rgba(244,63,94,0.10); }
+    body{
+      font-family:-apple-system,BlinkMacSystemFont,sans-serif;
+      background:var(--bg);
+      color:var(--text);
+      margin:0;
+      padding-bottom:170px;
+    }
 
-    .exercise-card{ background:var(--card); border-radius:14px; padding:15px; margin-bottom:15px; border:1px solid #333; }
-    .primer-card{ border:1px solid #eab308; background:rgba(234,179,8,0.10); }
-    .finisher-card{ border:1px solid #a855f7; background:rgba(168,85,247,0.10); }
+    header{
+      background:var(--card);
+      padding:15px;
+      position:sticky;
+      top:0;
+      z-index:100;
+      border-bottom:1px solid #333;
+    }
 
-    .ex-header{ display:flex; justify-content:space-between; align-items:flex-start; gap:10px; margin-bottom:10px; }
-    .ex-name{ font-weight:900; font-size:1rem; display:block; }
-    .ex-meta{ font-size:0.78rem; color:#94a3b8; margin-top:3px; display:block; line-height:1.25; }
-    .ex-rest{ background:#334155; color:#e2e8f0; padding:3px 8px; border-radius:10px; font-size:0.74rem; white-space:nowrap; }
+    .top-row{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+      margin-bottom:10px;
+    }
 
-    .set-grid{ display:grid; grid-template-columns:26px 1fr 1fr 1fr 28px 28px; gap:6px; margin-bottom:6px; align-items:center; }
-    .set-grid span{ font-size:0.72rem; color:var(--muted); text-align:center; }
-    input{ background:var(--input-bg); border:1px solid #444; color:white; padding:8px 2px; width:100%; text-align:center; border-radius:10px; font-size:0.92rem; }
-    .inp-check{ height:18px; width:18px; cursor:pointer; }
+    h1{
+      margin:0;
+      font-size:1.05rem;
+      color:var(--primary);
+      font-weight:900;
+      letter-spacing:.4px;
+    }
+
+    .subtitle{
+      color:#cbd5e1;
+      font-size:0.9rem;
+      margin:8px 0 0 0;
+    }
+
+    .phase-banner{
+      margin-top:10px;
+      padding:10px 12px;
+      border-radius:12px;
+      background:rgba(139,92,246,0.14);
+      border:1px solid rgba(139,92,246,0.35);
+      color:#e9ddff;
+      font-size:0.86rem;
+      line-height:1.35;
+    }
+
+    select{
+      background:var(--input-bg);
+      color:white;
+      padding:6px 10px;
+      border-radius:10px;
+      border:1px solid #555;
+    }
+
+    .right{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+    }
+
+    .btn-pill{
+      background:linear-gradient(135deg,#6366f1,#8b5cf6);
+      color:white;
+      border:none;
+      padding:7px 12px;
+      border-radius:999px;
+      font-weight:900;
+      cursor:pointer;
+      font-size:0.82rem;
+    }
+
+    .btn-pill.secondary{
+      background:#2b3647;
+      border:1px solid #43526a;
+      color:#d1d5db;
+    }
+
+    .btn-pill:disabled{
+      opacity:0.6;
+      cursor:not-allowed;
+    }
+
+    #userBadge{
+      font-size:0.78rem;
+      color:var(--muted);
+      text-align:right;
+    }
+
+    .cycle-nav{
+      display:flex;
+      overflow-x:auto;
+      gap:6px;
+      padding-bottom:5px;
+    }
+
+    .day-btn{
+      background:var(--input-bg);
+      color:var(--muted);
+      border:none;
+      padding:10px 14px;
+      border-radius:12px;
+      white-space:nowrap;
+      cursor:pointer;
+    }
+
+    .day-btn.active{
+      background:var(--primary);
+      color:white;
+      font-weight:900;
+    }
+
+    .day-btn.cardio{
+      background:rgba(244,63,94,0.25);
+      color:#fecdd3;
+      border:1px solid rgba(244,63,94,0.45);
+    }
+
+    .day-btn.rest{
+      background:rgba(16,185,129,0.20);
+      color:#a7f3d0;
+      border:1px solid rgba(16,185,129,0.45);
+    }
+
+    .container{
+      padding:15px;
+      max-width:760px;
+      margin:0 auto;
+    }
+
+    .banner{
+      border-radius:12px;
+      padding:10px;
+      margin-bottom:15px;
+      border:1px solid var(--border);
+      background:rgba(255,255,255,0.04);
+      font-size:0.92rem;
+      color:#dbeafe;
+      display:flex;
+      gap:10px;
+      align-items:center;
+    }
+
+    .banner.rest{
+      color:#a7f3d0;
+      border-color:rgba(16,185,129,0.45);
+      background:rgba(16,185,129,0.10);
+    }
+
+    .banner.cardio{
+      color:#fecdd3;
+      border-color:rgba(244,63,94,0.45);
+      background:rgba(244,63,94,0.10);
+    }
+
+    .exercise-card{
+      background:var(--card);
+      border-radius:14px;
+      padding:15px;
+      margin-bottom:15px;
+      border:1px solid #333;
+    }
+
+    .primer-card{
+      border:1px solid #eab308;
+      background:rgba(234,179,8,0.10);
+    }
+
+    .finisher-card{
+      border:1px solid #a855f7;
+      background:rgba(168,85,247,0.10);
+    }
+
+    .ex-header{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:10px;
+      margin-bottom:10px;
+    }
+
+    .ex-name{
+      font-weight:900;
+      font-size:1rem;
+      display:block;
+    }
+
+    .ex-meta{
+      font-size:0.78rem;
+      color:#94a3b8;
+      margin-top:3px;
+      display:block;
+      line-height:1.25;
+    }
+
+    .ex-rest{
+      background:#334155;
+      color:#e2e8f0;
+      padding:3px 8px;
+      border-radius:10px;
+      font-size:0.74rem;
+      white-space:nowrap;
+    }
+
+    .set-grid{
+      display:grid;
+      grid-template-columns:26px 1fr 1fr 1fr 28px 28px;
+      gap:6px;
+      margin-bottom:6px;
+      align-items:center;
+    }
+
+    .set-grid span{
+      font-size:0.72rem;
+      color:var(--muted);
+      text-align:center;
+    }
+
+    input[type="number"]{
+      background:var(--input-bg);
+      border:1px solid #444;
+      color:white;
+      padding:8px 2px;
+      width:100%;
+      text-align:center;
+      border-radius:10px;
+      font-size:0.92rem;
+    }
+
+    .inp-check{
+      height:18px;
+      width:18px;
+      cursor:pointer;
+    }
+
     .inp-done{ accent-color:var(--rest); }
     .inp-ds{ accent-color:var(--cardio); }
-    .history{ font-size:0.78rem; color:#94a3b8; grid-column:2 / span 5; text-align:center; font-style:italic; margin-bottom:2px; opacity:0.75; }
 
-    .btn-add{ width:100%; background:transparent; border:1px dashed #566276; color:#a8b1bf; padding:10px; margin-top:6px; cursor:pointer; border-radius:12px; }
-    .ex-note{ width:100%; background:rgba(0,0,0,0.18); border:1px solid #3d495b; color:#e2e8f0; padding:10px; border-radius:12px; font-family:inherit; font-size:0.9rem; margin-top:10px; resize:vertical; box-sizing:border-box; }
+    .history{
+      font-size:0.78rem;
+      color:#94a3b8;
+      grid-column:2 / span 5;
+      text-align:center;
+      font-style:italic;
+      margin-bottom:2px;
+      opacity:0.75;
+    }
 
-    .info-card{ background:rgba(255,255,255,0.05); padding:18px; border-radius:14px; text-align:center; border:1px solid #444; }
+    .btn-add{
+      width:100%;
+      background:transparent;
+      border:1px dashed #566276;
+      color:#a8b1bf;
+      padding:10px;
+      margin-top:6px;
+      cursor:pointer;
+      border-radius:12px;
+    }
 
-    .fab{ position:fixed; bottom:18px; left:50%; transform:translateX(-50%); width:92%; max-width:460px; display:flex; flex-direction:column; gap:8px; z-index:200; }
-    .btn-save{ width:100%; background:var(--rest); color:white; border:none; padding:15px; border-radius:30px; font-weight:1000; font-size:1rem; cursor:pointer; box-shadow:0 10px 30px rgba(0,0,0,0.35); }
-    .save-status{ text-align:center; color:var(--muted); font-size:0.78rem; }
-    .tools{ text-align:center; margin-top:30px; padding-top:18px; border-top:1px solid #333; }
-    .btn-small{ background:#2b3647; color:#d1d5db; border:1px solid #43526a; padding:6px 10px; border-radius:12px; cursor:pointer; margin:0 6px; }
-    .switch-label{ font-size:0.9rem; color:#cbd5e1; display:flex; align-items:center; justify-content:center; gap:10px; margin-bottom:10px; }
-    .switch-input{ width:20px; height:20px; accent-color:var(--primary); }
+    .ex-note{
+      width:100%;
+      background:rgba(0,0,0,0.18);
+      border:1px solid #3d495b;
+      color:#e2e8f0;
+      padding:10px;
+      border-radius:12px;
+      font-family:inherit;
+      font-size:0.9rem;
+      margin-top:10px;
+      resize:vertical;
+    }
 
-    .subtitle{ color:#cbd5e1; font-size:0.9rem; margin:8px 0 0 0; }
+    .info-card{
+      background:rgba(255,255,255,0.05);
+      padding:18px;
+      border-radius:14px;
+      text-align:center;
+      border:1px solid #444;
+    }
+
+    .fab{
+      position:fixed;
+      bottom:18px;
+      left:50%;
+      transform:translateX(-50%);
+      width:92%;
+      max-width:460px;
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+      z-index:200;
+    }
+
+    .btn-save{
+      width:100%;
+      background:var(--rest);
+      color:white;
+      border:none;
+      padding:15px;
+      border-radius:30px;
+      font-weight:1000;
+      font-size:1rem;
+      cursor:pointer;
+      box-shadow:0 10px 30px rgba(0,0,0,0.35);
+    }
+
+    .save-status{
+      text-align:center;
+      color:var(--muted);
+      font-size:0.78rem;
+    }
+
+    .tools{
+      text-align:center;
+      margin-top:30px;
+      padding-top:18px;
+      border-top:1px solid #333;
+    }
+
+    .btn-small{
+      background:#2b3647;
+      color:#d1d5db;
+      border:1px solid #43526a;
+      padding:6px 10px;
+      border-radius:12px;
+      cursor:pointer;
+      margin:0 6px;
+    }
+
+    .switch-label{
+      font-size:0.9rem;
+      color:#cbd5e1;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:10px;
+      margin-bottom:10px;
+    }
+
+    .switch-input{
+      width:20px;
+      height:20px;
+      accent-color:var(--primary);
+    }
+
+    .status-warn{
+      color:#fde68a;
+    }
   </style>
 </head>
 
@@ -70,18 +381,27 @@
   <div class="top-row">
     <div>
       <h1>HYBRID LOCKED PHASE 2</h1>
-      <div class="subtitle">Hypertrophy-first * Fitness add-on * Definition support * Cloud sync</div>
+      <div class="subtitle">Post-deload hypertrophy * fitness support * definition support</div>
     </div>
+
     <div class="right">
-      <button class="btn-pill secondary" onclick="signOutUser()">Sign out</button>
-      <button class="btn-pill" onclick="signIn()"> Sign in</button>
+      <button id="signOutBtn" class="btn-pill secondary" onclick="signOutUser()">Sign out</button>
+      <button id="signInBtn" class="btn-pill" onclick="signIn()">Sign in</button>
     </div>
   </div>
 
-  <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:10px;">
+  <div class="phase-banner">
+    Phase 2 keeps the original hypertrophy engine, adds Zone 2 on recovery days, trims unneeded arm fatigue, and adds small conditioning finishers to improve fitness and muscle definition without compromising growth.
+  </div>
+
+  <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; margin:12px 0 10px 0;">
     <select id="cycleSelect" onchange="render()">
-      <option value="1">Cycle 1</option><option value="2">Cycle 2</option><option value="3">Cycle 3</option>
-      <option value="4">Cycle 4</option><option value="5">Cycle 5</option><option value="6">Cycle 6</option>
+      <option value="1">Cycle 1</option>
+      <option value="2">Cycle 2</option>
+      <option value="3">Cycle 3</option>
+      <option value="4">Cycle 4</option>
+      <option value="5">Cycle 5</option>
+      <option value="6">Cycle 6</option>
       <option value="7">Cycle 7</option>
     </select>
     <div id="userBadge"></div>
@@ -90,11 +410,6 @@
   <div class="cycle-nav" id="nav"></div>
 </header>
 
-<div class="container">
-  <div class="banner" style="margin-top:15px;">
-    <div><strong>Phase 2 Post-Deload:</strong> Keep the hypertrophy structure, add light conditioning on rest days, and use small finishers to improve fitness and muscle definition without hurting recovery.</div>
-  </div>
-</div>
 <div class="container" id="app"></div>
 
 <div class="container">
@@ -104,26 +419,22 @@
       <input type="checkbox" id="autoBackupToggle" class="switch-input" onchange="toggleAutoBackup()">
       Download a backup file on manual save
     </label>
-    <button class="btn-small" onclick="exportData()"> Manual Backup</button>
-    <button class="btn-small" onclick="document.getElementById('imp').click()"> Restore Data</button>
+    <button class="btn-small" onclick="exportData()">Manual Backup</button>
+    <button class="btn-small" onclick="document.getElementById('imp').click()">Restore Data</button>
     <input type="file" id="imp" style="display:none" onchange="importData(this)">
   </div>
 </div>
 
 <div class="fab">
-  <button class="btn-save" onclick="save(false)"> SAVE PROGRESS</button>
+  <button class="btn-save" onclick="save(false)">SAVE PROGRESS</button>
   <div class="save-status" id="saveStatus">Not signed in (local only)</div>
 </div>
 
 <script type="module">
-  // ---------------------------
-  // FIREBASE (Auth + Firestore)
-  // ---------------------------
   import { initializeApp as fbInitializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getAuth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
   import { getFirestore, doc, getDoc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-  // Your Firebase web config
   const firebaseConfig = {
     apiKey: "AIzaSyCli5Ua5bVOviYLZi_i_85Iu83cNKBKZb0",
     authDomain: "mygym-3c53d.firebaseapp.com",
@@ -138,9 +449,6 @@
   const db = getFirestore(fbApp);
   const provider = new GoogleAuthProvider();
 
-  // ---------------------------
-  // PROGRAM (Locked 8-9 day cycle)
-  // ---------------------------
   const exercises = {
     "1": {
       title: "Day 1: Posterior Chain + Back Add-on (Hams + Glutes)",
@@ -172,10 +480,10 @@
     },
 
     "3": {
-      title: "Day 3: OFF (Recovery)",
+      title: "Day 3: OFF (Recovery + Zone 2)",
       type: "rest",
-      desc: "Full recovery day",
-      protocol: "Walk 30-45 min * Optional Zone 2 cardio 20-30 min * Mobility 10 min * Sleep + calories. This day drives growth and supports definition."
+      desc: "Recovery-focused day with aerobic base work",
+      protocol: "Walk or incline treadmill 30-45 min Zone 2 * Mobility 10 min * Sleep and calories. Keep it easy, nasal breathing if possible."
     },
 
     "4": {
@@ -186,7 +494,7 @@
         { id:"lat_pull", name:"Lat Pulldown", sets:4, reps:"8-12", rest:"2m" },
         { id:"cs_row", name:"Chest-Supported Row (Smith/Machine)", sets:4, reps:"8-12", rest:"2m" },
         { id:"seat_row", name:"Seated Cable Row", sets:3, reps:"10-12", rest:"2m" },
-        { id:"pullover", name:"Cable Pullover (FST-7)", sets:7, reps:"10-12", rest:"30-45s", note:"Counts like ~3 effective sets." },
+        { id:"pullover", name:"Cable Pullover (FST-7)", sets:7, reps:"10-12", rest:"30-45s", note:"Counts like about 3 effective sets." },
         { id:"bb_curl", name:"Barbell Curl", sets:3, reps:"6-10", rest:"2m" },
         { id:"inc_curl", name:"Incline DB Curl", sets:2, reps:"10-12", rest:"90s" }
       ]
@@ -206,52 +514,60 @@
     },
 
     "6": {
-      title: "Day 6: ARMS (Bodybuilder Day)",
+      title: "Day 6: ARMS (Tightened Volume + Finisher)",
       type: "lift",
-      banner: "Direct arm volume with a conditioning finish. Avoid elbow flare-ups and keep pump work clean.",
+      banner: "Direct arm volume with better fatigue control. Finish with short conditioning.",
       list: [
         { id:"pressdown_heavy", name:"Heavy Cable Pressdown", sets:4, reps:"6-10", rest:"2m" },
         { id:"oh_ext", name:"Overhead Cable Extension", sets:2, reps:"10-15", rest:"90s" },
         { id:"preacher", name:"Preacher Curl", sets:3, reps:"8-12", rest:"90s" },
         { id:"hammer", name:"Hammer Curl", sets:3, reps:"10-12", rest:"90s" },
-        { id:"tri_fst7", name:"Tricep Pushdown (FST-7)", sets:7, reps:"12-15", rest:"30-45s", note:"Counts like ~2-3 effective sets." },
-        { id:"bi_fst7", name:"Cable Curl (FST-7)", sets:4, reps:"10-12", rest:"30-45s", note:"Reduced from 7 to 4 sets for Phase 2 so conditioning can recover better." },
+        { id:"tri_fst7", name:"Tricep Pushdown (FST-7)", sets:7, reps:"12-15", rest:"30-45s", note:"Counts like about 2-3 effective sets." },
         { id:"shrugs", name:"DB Shrugs (Optional)", sets:3, reps:"12-20", rest:"90s" },
-        { id:"forearms", name:"Forearms (Optional)", sets:3, reps:"Failure", rest:"60s", note:"After arms, finish with 15-20 min easy-to-moderate bike, incline treadmill, or rower." }
-      ]
+        { id:"forearms", name:"Forearms (Optional)", sets:3, reps:"Failure", rest:"60s" }
+      ],
+      finisher: "After lifting: 15-20 min easy-to-moderate conditioning. Bike, incline walk, rower, or sled if available."
     },
 
     "7": {
-      title: "Day 7: OFF (Rest)",
+      title: "Day 7: OFF (Rest + Zone 2)",
       type: "rest",
-      desc: "Full rest day",
-      protocol: "Light walk 30-45 min or easy Zone 2 cardio 20-30 min. Hydrate, sleep, eat, recover."
+      desc: "Full rest from lifting with easy aerobic work",
+      protocol: "Easy walk, incline treadmill, or bike 30-45 min Zone 2 * Hydrate * Sleep * Eat enough to recover."
     },
 
     "8": {
       title: "Day 8: Heavy / Neural (Controlled Shock)",
       type: "lift",
-      banner: "Heavy exposure without grinding, then short conditioning. This supports growth and work capacity.",
+      banner: "Heavy exposure without grinding. This supports growth.",
       list: [
-        { id:"deadlift", name:"Deadlift (Conventional or Rack Pull)", sets:1, reps:"3-5", rest:"3-5m", note:"Top set @ RIR 1-2. NO failure grinders." },
+        { id:"deadlift", name:"Deadlift (Conventional or Rack Pull)", sets:1, reps:"3-5", rest:"3-5m", note:"Top set at RIR 1-2. No failure grinders." },
         { id:"row_heavy", name:"Chest-Supported Row (Heavy)", sets:3, reps:"6-8", rest:"2-3m" },
         { id:"leg_press_mod", name:"Leg Press (Moderate)", sets:2, reps:"10-15", rest:"2m" },
-        { id:"calf_stand2", name:"Standing Calf Raise", sets:3, reps:"10-15", rest:"60-90s", note:"Then do 8-10 min intervals: 20 sec hard / 40 sec easy." }
-      ]
+        { id:"calf_stand2", name:"Standing Calf Raise", sets:3, reps:"10-15", rest:"60-90s" }
+      ],
+      finisher: "Optional finisher: 8-10 min intervals. Example: 20 sec hard / 40 sec easy x 10. Keep it crisp, not exhaustive."
     },
 
     "9": {
       title: "Day 9: VO2max Conditioning (4x4 Intervals)",
       type: "cardio",
-      desc: "High-intensity conditioning / VO2 max",
-      protocol: "Warm up 10 min easy -> 4 rounds: 4 min HARD (Zone 5) + 3 min easy -> cool down 5-10 min."
+      desc: "High-intensity conditioning",
+      protocol: "Warm up 10 min easy -> 4 rounds: 4 min HARD + 3 min easy -> cool down 5-10 min."
     }
   };
 
-  const KEY = "hybrid_locked_hypertrophy_phase2_v1";
-  let userId = null;
+  const KEY = "hybrid_locked_phase2_post_deload_v1";
 
-  let state = { cycle:"1", day:"1", config:{ autoBackup:false }, data:{} };
+  let userId = null;
+  let signInInProgress = false;
+
+  let state = {
+    cycle:"1",
+    day:"1",
+    config:{ autoBackup:false },
+    data:{}
+  };
 
   function cloudDocRef() {
     return doc(db, "users", userId, "programs", KEY);
@@ -259,6 +575,7 @@
 
   async function cloudLoad() {
     if (!userId) return false;
+
     try {
       const snap = await getDoc(cloudDocRef());
       if (snap.exists()) {
@@ -266,61 +583,111 @@
         if (payload && payload.data) {
           state.data = payload.data;
           if (state.data._config) state.config = state.data._config;
-          const t = document.getElementById("autoBackupToggle");
-          if (t) t.checked = !!state.config.autoBackup;
+
+          const toggle = document.getElementById("autoBackupToggle");
+          if (toggle) toggle.checked = !!state.config.autoBackup;
           return true;
         }
       }
     } catch (e) {
       console.error("Cloud load failed", e);
     }
+
     return false;
   }
 
   async function cloudSave() {
     if (!userId) return;
+
     try {
-      await setDoc(cloudDocRef(), { data: state.data, updatedAt: serverTimestamp() }, { merge: true });
+      await setDoc(
+        cloudDocRef(),
+        { data: state.data, updatedAt: serverTimestamp() },
+        { merge:true }
+      );
     } catch (e) {
       console.error("Cloud save failed", e);
     }
   }
 
+  function setSignInButtonState(isBusy) {
+    const btn = document.getElementById("signInBtn");
+    if (!btn) return;
+    btn.disabled = isBusy;
+    btn.textContent = isBusy ? "Opening..." : "Sign in";
+  }
+
   async function signIn() {
+    if (signInInProgress) return;
+
+    signInInProgress = true;
+    setSignInButtonState(true);
+
     try {
       await signInWithPopup(auth, provider);
     } catch (e) {
       console.error("Sign-in failed", e);
-      alert("Sign-in failed: " + (e?.message || e));
+
+      if (e && e.code === "auth/cancelled-popup-request") {
+        const status = document.getElementById("saveStatus");
+        if (status) {
+          status.textContent = "Sign-in popup was already in progress. Try one tap only.";
+          status.classList.add("status-warn");
+        }
+      } else {
+        alert("Sign-in failed: " + (e?.message || e));
+      }
+    } finally {
+      signInInProgress = false;
+      setSignInButtonState(false);
     }
   }
 
   async function signOutUser() {
-    try { await signOut(auth); } catch (e) { console.error("Sign-out failed", e); }
+    try {
+      await signOut(auth);
+    } catch (e) {
+      console.error("Sign-out failed", e);
+    }
   }
 
   function renderNav() {
     const nav = document.getElementById("nav");
     nav.innerHTML = "";
+
     for (let i = 1; i <= 9; i++) {
       const b = document.createElement("button");
       b.innerText = `Day ${i}`;
+
       const dayType = exercises[String(i)].type;
       b.className = "day-btn" + (dayType === "rest" ? " rest" : (dayType === "cardio" ? " cardio" : ""));
-      b.onclick = () => { state.day = String(i); render(); };
+
+      b.onclick = () => {
+        state.day = String(i);
+        render();
+      };
+
       nav.appendChild(b);
     }
   }
 
-  function getID(exID) { return `c${state.cycle}_d${state.day}_${exID}`; }
-  function getDoneKey() { return `c${state.cycle}_d${state.day}_done`; }
+  function getID(exID) {
+    return `c${state.cycle}_d${state.day}_${exID}`;
+  }
+
+  function getDoneKey() {
+    return `c${state.cycle}_d${state.day}_done`;
+  }
 
   function getGhost(exID, setIdx) {
     const prevCycle = Number(state.cycle) - 1;
     if (prevCycle < 1) return null;
+
     const prevID = `c${prevCycle}_d${state.day}_${exID}`;
     const prev = state.data[prevID];
+
     if (!prev || !prev.sets || !prev.sets[setIdx] || !prev.sets[setIdx].w) return null;
+
     return `C${prevCycle}: ${prev.sets[setIdx].w} x ${prev.sets[setIdx].r}`;
   }
 
@@ -330,7 +697,7 @@
 
     state.cycle = document.getElementById("cycleSelect").value;
 
-    document.querySelectorAll(".day-btn").forEach(b => {
+    document.querySelectorAll(".day-btn").forEach((b) => {
       b.classList.remove("active");
       if (b.innerText === `Day ${state.day}`) b.classList.add("active");
     });
@@ -339,16 +706,20 @@
 
     const h2 = document.createElement("h2");
     h2.innerText = dayData.title;
-    h2.style.color = dayData.type === "lift" ? "var(--primary)" : (dayData.type === "rest" ? "var(--rest)" : "var(--cardio)");
+    h2.style.color =
+      dayData.type === "lift"
+        ? "var(--primary)"
+        : (dayData.type === "rest" ? "var(--rest)" : "var(--cardio)");
     app.appendChild(h2);
 
     if (dayData.type === "lift" && dayData.banner) {
-      app.innerHTML += `<div class="banner"><span></span><div>${dayData.banner}</div></div>`;
+      app.innerHTML += `<div class="banner"><div>${dayData.banner}</div></div>`;
     }
+
     if (dayData.type === "rest") {
-      app.innerHTML += `<div class="banner rest"><span></span><div><strong>${dayData.desc}</strong> - ${dayData.protocol}</div></div>`;
       const done = !!state.data[getDoneKey()];
       app.innerHTML += `
+        <div class="banner rest"><div><strong>${dayData.desc}</strong> - ${dayData.protocol}</div></div>
         <div class="info-card">
           <p style="margin-top:0;">Mark the day complete if you want to track consistency.</p>
           <label><input type="checkbox" ${done ? "checked" : ""} onchange="toggleDone(this)"> Mark Complete</label>
@@ -356,10 +727,11 @@
       `;
       return;
     }
+
     if (dayData.type === "cardio") {
-      app.innerHTML += `<div class="banner cardio"><span></span><div><strong>${dayData.desc}</strong> - ${dayData.protocol}</div></div>`;
       const done = !!state.data[getDoneKey()];
       app.innerHTML += `
+        <div class="banner cardio"><div><strong>${dayData.desc}</strong> - ${dayData.protocol}</div></div>
         <div class="info-card">
           <p style="margin-top:0;">Mark complete after finishing your intervals.</p>
           <label><input type="checkbox" ${done ? "checked" : ""} onchange="toggleDone(this)"> Mark Complete</label>
@@ -380,7 +752,10 @@
       for (let i = 0; i < count; i++) {
         const s = currentSets[i] || {};
         const ghost = getGhost(ex.id, i);
-        if (ghost) setsHtml += `<div class="history">${ghost}</div>`;
+
+        if (ghost) {
+          setsHtml += `<div class="history">${ghost}</div>`;
+        }
 
         setsHtml += `
           <div class="set-grid row" data-id="${ex.id}">
@@ -395,10 +770,12 @@
       }
 
       let cardClass = "exercise-card";
-      if ((ex.name || "").toLowerCase().includes("primer")) cardClass = "primer-card";
-      if ((ex.name || "").includes("FST-7") || (ex.name || "").includes("Optional")) cardClass = "finisher-card";
+      if ((ex.name || "").toLowerCase().includes("primer")) cardClass = "exercise-card primer-card";
+      if ((ex.name || "").includes("FST-7") || (ex.name || "").includes("Optional")) cardClass = "exercise-card finisher-card";
 
-      const noteHtml = ex.note ? `<span class="ex-meta" style="color:#eab308"> ${ex.note}</span>` : "";
+      const noteHtml = ex.note
+        ? `<span class="ex-meta" style="color:#eab308">${ex.note}</span>`
+        : "";
 
       const div = document.createElement("div");
       div.className = cardClass;
@@ -409,7 +786,7 @@
             <span class="ex-meta">${ex.reps} * ${ex.sets} sets</span>
             ${noteHtml}
           </div>
-          <div class="ex-rest"> ${ex.rest || "2m"}</div>
+          <div class="ex-rest">${ex.rest || "2m"}</div>
         </div>
         <div id="sets-${ex.id}">${setsHtml}</div>
         <button class="btn-add" onclick="addSet('${ex.id}')">+ Add Set</button>
@@ -417,11 +794,20 @@
       `;
       app.appendChild(div);
     });
+
+    if (dayData.finisher) {
+      const finisherDiv = document.createElement("div");
+      finisherDiv.className = "info-card";
+      finisherDiv.style.marginTop = "10px";
+      finisherDiv.innerHTML = `<strong>Finisher:</strong><br>${dayData.finisher}`;
+      app.appendChild(finisherDiv);
+    }
   }
 
   function addSet(id) {
     const box = document.getElementById(`sets-${id}`);
     const num = box.querySelectorAll(".row").length + 1;
+
     box.insertAdjacentHTML("beforeend", `
       <div class="set-grid row" data-id="${id}">
         <span>${num}</span>
@@ -432,6 +818,7 @@
         <input type="checkbox" class="inp-check inp-done" onchange="save(true)">
       </div>
     `);
+
     save(true);
   }
 
@@ -454,7 +841,8 @@
       dayData.list.forEach((ex) => {
         const rows = document.querySelectorAll(`.row[data-id="${ex.id}"]`);
         const sets = [];
-        rows.forEach(r => {
+
+        rows.forEach((r) => {
           sets.push({
             w: r.querySelector(".w")?.value || "",
             r: r.querySelector(".r")?.value || "",
@@ -470,58 +858,77 @@
     }
 
     state.data.lastActiveDay = state.day;
+    state.data._config = state.config;
+
     localStorage.setItem(KEY, JSON.stringify(state.data));
     cloudSave();
 
     const status = document.getElementById("saveStatus");
+    const btn = document.querySelector(".btn-save");
     const now = new Date();
     const time = now.getHours() + ":" + String(now.getMinutes()).padStart(2, "0");
 
+    if (status) status.classList.remove("status-warn");
+
     if (isAuto) {
-      if (status) status.innerText = userId ? `Auto-saved (cloud) at ${time}` : `Auto-saved (local) at ${time}`;
+      if (status) status.textContent = userId ? `Auto-saved (cloud) at ${time}` : `Auto-saved (local) at ${time}`;
       return;
     }
 
-    const btn = document.querySelector(".btn-save");
     if (state.config.autoBackup) {
       exportData();
-      btn.innerText = "[OK] SAVED + DOWNLOADED";
+      btn.textContent = "SAVED + DOWNLOADED";
     } else {
-      btn.innerText = "[OK] SAVED";
+      btn.textContent = "SAVED";
     }
-    if (status) status.innerText = userId ? `Manual save (cloud) at ${time}` : `Manual save (local) at ${time}`;
-    setTimeout(() => btn.innerText = " SAVE PROGRESS", 1800);
+
+    if (status) status.textContent = userId ? `Manual save (cloud) at ${time}` : `Manual save (local) at ${time}`;
+
+    setTimeout(() => {
+      btn.textContent = "SAVE PROGRESS";
+    }, 1800);
   }
 
   function exportData() {
-    const blob = new Blob([localStorage.getItem(KEY) || "{}"], { type: "application/json" });
+    const blob = new Blob([localStorage.getItem(KEY) || "{}"], { type:"application/json" });
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
-    a.download = `hybrid_locked_backup_${new Date().toISOString().slice(0,10)}.json`;
+    a.download = `hybrid_locked_phase2_backup_${new Date().toISOString().slice(0,10)}.json`;
     a.click();
   }
 
   function importData(input) {
+    const file = input.files && input.files[0];
+    if (!file) return;
+
     const reader = new FileReader();
-    reader.onload = e => {
+    reader.onload = (e) => {
       if (confirm("Overwrite current data for this program page?")) {
         localStorage.setItem(KEY, e.target.result);
         location.reload();
       }
     };
-    reader.readAsText(input.files[0]);
+    reader.readAsText(file);
   }
 
   function init() {
     const stored = localStorage.getItem(KEY);
+
     if (stored) {
-      try { state.data = JSON.parse(stored); } catch { state.data = {}; }
+      try {
+        state.data = JSON.parse(stored);
+      } catch {
+        state.data = {};
+      }
     }
+
     if (state.data._config) state.config = state.data._config;
-    const t = document.getElementById("autoBackupToggle");
-    if (t) t.checked = !!state.config.autoBackup;
+
+    const toggle = document.getElementById("autoBackupToggle");
+    if (toggle) toggle.checked = !!state.config.autoBackup;
 
     renderNav();
+
     if (state.data.lastActiveDay) state.day = state.data.lastActiveDay;
     render();
 
@@ -531,10 +938,13 @@
       const status = document.getElementById("saveStatus");
       const badge = document.getElementById("userBadge");
 
+      if (status) status.classList.remove("status-warn");
+
       if (user) {
         userId = user.uid;
+
         if (badge) badge.innerText = user.email ? `Signed in: ${user.email}` : "Signed in";
-        if (status) status.innerText = "Signed in. Syncing...";
+        if (status) status.textContent = "Signed in. Syncing...";
 
         const hadLocalData = Object.keys(state.data || {}).length > 0;
         const ok = await cloudLoad();
@@ -547,11 +957,11 @@
         if (state.data.lastActiveDay) state.day = state.data.lastActiveDay;
         render();
 
-        if (status) status.innerText = "Synced";
+        if (status) status.textContent = "Synced";
       } else {
         userId = null;
         if (badge) badge.innerText = "";
-        if (status) status.innerText = "Not signed in (local only)";
+        if (status) status.textContent = "Not signed in (local only)";
       }
     });
   }
@@ -569,4 +979,4 @@
   init();
 </script>
 </body>
-</html>
+</html>  

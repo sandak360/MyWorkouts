@@ -19,7 +19,7 @@
 <header>
   <div class="top-row"><div><h1>HYBRID PHASE 3</h1><div class="subtitle">Growth first • Fitness support • Arm definition • 9-day rotation</div></div><div class="right"><button id="signOutBtn" class="btn-pill secondary" style="display:none;">Sign out</button><button id="signInBtn" class="btn-pill" style="display:none;">Sign in with Google</button></div></div>
   <div class="phase-banner">Priority: hypertrophy. Conditioning is included, but it should not steal performance from heavy leg or upper-body growth sessions.</div>
-  <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin:12px 0 10px 0;"><select id="cycleSelect" onchange="render()"><option value="1">Cycle 1</option><option value="2">Cycle 2</option><option value="3">Cycle 3</option><option value="4">Cycle 4</option><option value="5">Cycle 5</option><option value="6">Cycle 6</option><option value="7">Cycle 7</option><option value="8">Cycle 8</option></select><div><div class="small">RIR target: 1-2 on most hypertrophy sets</div><div id="userBadge" class="small" style="text-align:right;color:var(--muted);"></div></div></div>
+  <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin:12px 0 10px 0;"><select id="cycleSelect" onchange="render()"></select><div><div class="small">RIR target: 1-2 on most hypertrophy sets</div><div id="userBadge" class="small" style="text-align:right;color:var(--muted);"></div></div></div>
   <div class="cycle-nav" id="nav"></div>
 </header>
 <div class="container" id="app"></div>
@@ -109,7 +109,10 @@ const exercises={
 "8":{title:"Day 8: VO2max Conditioning",type:"cardio",desc:"High-intensity conditioning",protocol:"Start with 4 x 4 minutes at 90-95% HRmax with 3 minutes easy recovery. Choose rower, incline treadmill, bike, or elliptical based on knee and leg recovery. Stop if legs are still beat up."},
 "9":{title:"Day 9: Rest / Complete Recovery",type:"rest",desc:"Full recovery",protocol:"No lifting. Easy walk only if you want. Sleep, food, mobility, and readiness for Day 1."}
 };
-const KEY="hybrid_phase3_growth_fitness_v1";let state={cycle:"1",day:"1",data:{}};
+const KEY="hybrid_phase3_growth_fitness_v1";
+const MAX_CYCLES = 12;
+let state={cycle:"1",day:"1",data:{}};
+function populateCycleSelect(){const sel=document.getElementById("cycleSelect");sel.innerHTML="";for(let i=1;i<=MAX_CYCLES;i++){const opt=document.createElement("option");opt.value=String(i);opt.textContent=`Cycle ${i}`;sel.appendChild(opt)}sel.value=state.cycle || "1";}
 function renderNav(){const nav=document.getElementById("nav");nav.innerHTML="";for(let i=1;i<=9;i++){const b=document.createElement("button");b.innerText=`Day ${i}`;const t=exercises[String(i)].type;b.className="day-btn"+(t==="rest"?" rest":(t==="cardio"?" cardio":""));b.onclick=()=>{state.day=String(i);render()};nav.appendChild(b)}}
 function getID(exID){return `c${state.cycle}_d${state.day}_${exID}`}
 function render(){const app=document.getElementById("app");app.innerHTML="";state.cycle=document.getElementById("cycleSelect").value;document.querySelectorAll(".day-btn").forEach(b=>{b.classList.remove("active");if(b.innerText===`Day ${state.day}`)b.classList.add("active")});const dayData=exercises[state.day];const h2=document.createElement("h2");h2.innerText=dayData.title;h2.style.color=dayData.type==="lift"?"var(--primary)":(dayData.type==="rest"?"var(--rest)":"var(--cardio)");app.appendChild(h2);if(dayData.type!=="lift"){app.innerHTML+=`<div class="banner ${dayData.type}"><div><strong>${dayData.desc}</strong><br>${dayData.protocol}</div></div>`;return}if(dayData.banner)app.innerHTML+=`<div class="banner"><div>${dayData.banner}</div></div>`;dayData.list.forEach(ex=>{const current=state.data[getID(ex.id)]||{};const currentNote=current.note||ex.note||"";const currentSets=current.sets||[];const count=currentSets.length||ex.sets;let setsHtml=`<div class="set-grid"><span>#</span><span>LBS</span><span>REPS</span><span>RPE</span><span>DS</span><span>✓</span></div>`;for(let i=0;i<count;i++){const s=currentSets[i]||{};setsHtml+=`<div class="set-grid row" data-id="${ex.id}"><span>${i+1}</span><input type="number" class="w" value="${s.w||""}" placeholder="-" oninput="save(true)"><input type="number" class="r" value="${s.r||""}" placeholder="-" oninput="save(true)"><input type="number" class="rpe" value="${s.rpe||""}" placeholder="-" oninput="save(true)"><input type="checkbox" class="inp-check inp-ds" ${s.ds?"checked":""} onchange="save(true)"><input type="checkbox" class="inp-check inp-done" ${s.done?"checked":""} onchange="save(true)"></div>`}const div=document.createElement("div");div.className="exercise-card";div.innerHTML=`<div class="ex-header"><div><span class="ex-name">${ex.name}</span><span class="ex-meta">${ex.sets} sets • ${ex.reps} reps</span></div><div class="ex-rest">${ex.rest||"2m"}</div></div><div id="sets-${ex.id}">${setsHtml}</div><textarea id="note-${ex.id}" class="ex-note" placeholder="Notes..." oninput="save(true)">${currentNote}</textarea>`;app.appendChild(div)})}
@@ -164,6 +167,7 @@ document.getElementById("signOutBtn").onclick = () => signOut(auth);
 
 const stored = localStorage.getItem(KEY);
 if (stored) { try { state.data = JSON.parse(stored); } catch {} }
+populateCycleSelect();
 renderNav();
 render();
 setAuthUI(null);

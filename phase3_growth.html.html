@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Hybrid Phase 3 - Growth + Fitness</title>
+  <style>
+    :root{
+      --primary:#8b5cf6; --accent:#38bdf8; --cardio:#f43f5e; --rest:#10b981;
+      --bg:#0f172a; --card:#1e293b; --text:#f1f5f9; --muted:#9aa4b2;
+      --input-bg:#334155; --border:#2b3647; --warning:#f59e0b;
+    }
+    *{box-sizing:border-box} body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--text);margin:0;padding-bottom:175px}
+    header{background:var(--card);padding:15px;position:sticky;top:0;z-index:100;border-bottom:1px solid #333}
+    .top-row{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px} h1{margin:0;font-size:1.05rem;color:var(--primary);font-weight:900;letter-spacing:.4px}.subtitle{color:#cbd5e1;font-size:.88rem;margin-top:6px}.phase-banner{margin-top:10px;padding:10px 12px;border-radius:12px;background:rgba(139,92,246,.14);border:1px solid rgba(139,92,246,.35);color:#e9ddff;font-size:.86rem;line-height:1.35} select{background:var(--input-bg);color:white;padding:6px 10px;border-radius:10px;border:1px solid #555}.cycle-nav{display:flex;overflow-x:auto;gap:6px;padding-bottom:5px}.day-btn{background:var(--input-bg);color:var(--muted);border:none;padding:10px 14px;border-radius:12px;white-space:nowrap;cursor:pointer}.day-btn.active{background:var(--primary);color:white;font-weight:900}.day-btn.cardio{background:rgba(244,63,94,.25);color:#fecdd3;border:1px solid rgba(244,63,94,.45)}.day-btn.rest{background:rgba(16,185,129,.2);color:#a7f3d0;border:1px solid rgba(16,185,129,.45)}.container{padding:15px;max-width:840px;margin:0 auto}.banner{border-radius:12px;padding:10px;margin-bottom:15px;border:1px solid var(--border);background:rgba(255,255,255,.04);font-size:.92rem;color:#dbeafe}.banner.rest{color:#a7f3d0;border-color:rgba(16,185,129,.45);background:rgba(16,185,129,.1)}.banner.cardio{color:#fecdd3;border-color:rgba(244,63,94,.45);background:rgba(244,63,94,.1)}.exercise-card{background:var(--card);border-radius:14px;padding:15px;margin-bottom:15px;border:1px solid #333}.ex-header{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:10px}.ex-name{font-weight:900;font-size:1rem;display:block}.ex-meta{font-size:.78rem;color:#94a3b8;margin-top:3px;display:block;line-height:1.25}.ex-rest{background:#334155;color:#e2e8f0;padding:3px 8px;border-radius:10px;font-size:.74rem;white-space:nowrap}.set-grid{display:grid;grid-template-columns:26px 1fr 1fr 1fr 28px 28px;gap:6px;margin-bottom:6px;align-items:center}.set-grid span{font-size:.72rem;color:var(--muted);text-align:center}input[type="number"]{background:var(--input-bg);border:1px solid #444;color:white;padding:8px 2px;width:100%;text-align:center;border-radius:10px;font-size:.92rem}.inp-check{height:18px;width:18px;cursor:pointer}.inp-done{accent-color:var(--rest)}.inp-ds{accent-color:var(--cardio)}.ex-note{width:100%;background:rgba(0,0,0,.18);border:1px solid #3d495b;color:#e2e8f0;padding:10px;border-radius:12px;font-family:inherit;font-size:.9rem;margin-top:10px;resize:vertical}.info-card{background:rgba(255,255,255,.05);padding:18px;border-radius:14px;text-align:left;border:1px solid #444;line-height:1.45}.fab{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);width:92%;max-width:460px;display:flex;flex-direction:column;gap:8px;z-index:200}.btn-save{width:100%;background:var(--rest);color:white;border:none;padding:15px;border-radius:30px;font-weight:1000;font-size:1rem;cursor:pointer;box-shadow:0 10px 30px rgba(0,0,0,.35)}.save-status{text-align:center;color:var(--muted);font-size:.78rem}.tag{display:inline-block;padding:3px 8px;border-radius:999px;background:rgba(56,189,248,.16);color:#bae6fd;font-size:.72rem;margin-right:4px;margin-top:4px}.warning{color:#fde68a}.small{font-size:.86rem;color:#cbd5e1}
+  </style>
+</head>
+<body>
+<header>
+  <div class="top-row"><div><h1>HYBRID PHASE 3</h1><div class="subtitle">Growth first • Fitness support • Arm definition • 9-day rotation</div></div></div>
+  <div class="phase-banner">Priority: hypertrophy. Conditioning is included, but it should not steal performance from heavy leg or upper-body growth sessions.</div>
+  <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin:12px 0 10px 0;"><select id="cycleSelect" onchange="render()"><option value="1">Cycle 1</option><option value="2">Cycle 2</option><option value="3">Cycle 3</option><option value="4">Cycle 4</option><option value="5">Cycle 5</option><option value="6">Cycle 6</option><option value="7">Cycle 7</option><option value="8">Cycle 8</option></select><div class="small">RIR target: 1-2 on most hypertrophy sets</div></div>
+  <div class="cycle-nav" id="nav"></div>
+</header>
+<div class="container" id="app"></div>
+<div class="fab"><button class="btn-save" onclick="save(false)">SAVE PROGRESS</button><div class="save-status" id="saveStatus">Local save only</div></div>
+<script>
+const exercises={
+"1":{title:"Day 1: Upper Push - Upper Chest Priority",type:"lift",banner:"Goal: upper chest, delts, triceps. Heavy tension first, pump second.",list:[
+{id:"cambered_incline",name:"Cambered Bar Incline Press",sets:4,reps:"6-8",rest:"2-3m",note:"Primary growth lift. Deep stretch only if shoulders feel good."},
+{id:"incline_db",name:"Incline Dumbbell Press",sets:3,reps:"8-10",rest:"2m",note:"Controlled eccentric, full stretch."},
+{id:"incline_machine",name:"Converging Incline Machine Press",sets:3,reps:"10-12",rest:"90-120s",note:"Stable press close to failure."},
+{id:"low_high_fly",name:"Low-to-High Cable Fly",sets:3,reps:"12-15",rest:"60-90s",note:"Upper chest squeeze, no ego weight."},
+{id:"seated_press",name:"Seated DB or Machine Shoulder Press",sets:3,reps:"8-10",rest:"2m"},
+{id:"cable_lateral",name:"Cable Lateral Raise",sets:4,reps:"12-20",rest:"60-90s",note:"Lead with elbow, partials allowed last set."},
+{id:"oh_tri",name:"Overhead Cable Triceps Extension",sets:3,reps:"10-12",rest:"75-90s",note:"Long head triceps stretch."},
+{id:"pressdown",name:"Cable Pressdown",sets:2,reps:"12-15",rest:"60-75s"}
+]},
+"2":{title:"Day 2: Posterior Chain + Back Primer",type:"lift",banner:"Heavy hamstrings/glutes, then low-fatigue back frequency. No lower-back-heavy rows.",list:[
+{id:"rdl",name:"Romanian Deadlift",sets:4,reps:"6-8",rest:"2-3m",note:"1-2 RIR. Stop before form breaks."},
+{id:"seated_curl",name:"Seated Leg Curl",sets:4,reps:"8-12",rest:"90-120s",note:"Last set near failure."},
+{id:"hip_thrust",name:"Hip Thrust / Glute Bridge",sets:3,reps:"8-10",rest:"2m"},
+{id:"back_ext",name:"45 Degree Back Extension",sets:2,reps:"12-15",rest:"90s",note:"Glute/ham focus, not lower-back max effort."},
+{id:"cs_row_primer",name:"Chest-Supported Machine Row",sets:3,reps:"10-12",rest:"90s",note:"Back primer, not a max row day."},
+{id:"straight_arm",name:"Straight-Arm Cable Pulldown",sets:3,reps:"12-15",rest:"60-90s",note:"Lat isolation, minimal biceps."},
+{id:"calf_stand",name:"Standing Calf Raise",sets:4,reps:"10-15",rest:"75-90s"},
+{id:"hanging_raise",name:"Hanging Leg Raise",sets:3,reps:"10-15",rest:"60-90s"}
+]},
+"3":{title:"Day 3: Zone 2 + Mobility",type:"cardio",desc:"Recovery cardio",protocol:"30-45 minutes Zone 2. Keep it easy enough to recover. Add hips, ankles, T-spine, shoulders."},
+"4":{title:"Day 4: Back + Biceps - V-Taper Focus",type:"lift",banner:"Heavy vertical pull, then single-arm lat work. Biceps after back.",list:[
+{id:"weighted_pullup",name:"Weighted Pull-Up / Assisted Pull-Up",sets:4,reps:"5-8",rest:"2-3m",note:"Full stretch, scapular depression."},
+{id:"single_pulldown",name:"Single-Arm Cable Pulldown",sets:3,reps:"10-12 each",rest:"75-90s",note:"Elbow to hip. 2-sec squeeze."},
+{id:"cs_row",name:"Chest-Supported Row",sets:4,reps:"8-10",rest:"2m"},
+{id:"neutral_row",name:"Neutral-Grip Seated Row",sets:3,reps:"10-12",rest:"90-120s"},
+{id:"reverse_pec",name:"Reverse Pec Deck",sets:4,reps:"12-15",rest:"60-90s"},
+{id:"bayesian",name:"Bayesian Cable Curl",sets:3,reps:"10-12",rest:"75-90s"},
+{id:"incline_curl",name:"Incline Dumbbell Curl",sets:3,reps:"8-10",rest:"90s"},
+{id:"hammer",name:"Hammer Curl",sets:3,reps:"10-12",rest:"75-90s"},
+{id:"reverse_curl",name:"Reverse Curl",sets:2,reps:"12-15",rest:"60-75s"}
+]},
+"5":{title:"Day 5: Heavy Quads + Core",type:"lift",banner:"Quad growth without destroying the knee. Use pain-free depth and controlled tempo.",list:[
+{id:"hack",name:"Hack Squat / Pendulum Squat",sets:4,reps:"6-10",rest:"2-3m",note:"Pick the one your knee tolerates best."},
+{id:"leg_press",name:"Leg Press",sets:3,reps:"10-12",rest:"2m",note:"Controlled depth. Do not bounce knees."},
+{id:"split_squat",name:"Bulgarian Split Squat or Smith Split Squat",sets:3,reps:"8-10 each",rest:"90-120s"},
+{id:"leg_ext",name:"Leg Extension",sets:4,reps:"12-15",rest:"75-90s",note:"1-sec squeeze. Last set can be drop set."},
+{id:"adductor",name:"Adductor Machine",sets:3,reps:"12-15",rest:"60-90s"},
+{id:"seated_calf",name:"Seated Calf Raise",sets:4,reps:"12-15",rest:"75-90s"},
+{id:"cable_crunch",name:"Cable Crunch",sets:3,reps:"12-15",rest:"60-90s"}
+]},
+"6":{title:"Day 6: Arm Specialization - Size + Definition",type:"lift",banner:"Priority day. Heavy, stretch, pump, forearms. Do not rush rest periods.",list:[
+{id:"ez_curl",name:"EZ Bar Curl",sets:4,reps:"6-8",rest:"2m"},
+{id:"preacher",name:"Preacher Curl",sets:3,reps:"10-12",rest:"90s"},
+{id:"spider",name:"Spider Curl",sets:3,reps:"12-15",rest:"75s"},
+{id:"rope_hammer",name:"Rope Hammer Curl",sets:3,reps:"10-12",rest:"75-90s"},
+{id:"cg_smith",name:"Close-Grip Smith Press",sets:4,reps:"6-8",rest:"2m"},
+{id:"oh_rope",name:"Overhead Rope Extension",sets:3,reps:"10-12",rest:"90s"},
+{id:"single_push",name:"Single-Arm Cable Pushdown",sets:3,reps:"12-15 each",rest:"60-75s"},
+{id:"forearm",name:"Forearm Circuit: Wrist Curl + Reverse Wrist Curl + Dead Hang",sets:3,reps:"12-20",rest:"60-90s"},
+{id:"zone2_optional",name:"Optional Zone 2 After Arms",sets:1,reps:"20-30 min",rest:"easy",note:"Only if recovery is good. Keep it easy."}
+]},
+"7":{title:"Day 7: Upper Power / Athletic",type:"lift",banner:"Not a bodybuilding day. Low volume, fast reps, stop 2-3 reps before failure.",list:[
+{id:"med_throw",name:"Medicine Ball Chest Throw",sets:3,reps:"5",rest:"60-90s"},
+{id:"push_press",name:"Push Press",sets:4,reps:"3",rest:"2-3m",note:"Explosive, no grinding."},
+{id:"power_pullup",name:"Weighted Pull-Up",sets:3,reps:"3-5",rest:"2-3m",note:"Reduced volume because this follows arm day."},
+{id:"landmine",name:"Landmine Press",sets:3,reps:"6-8 each",rest:"90-120s"},
+{id:"explosive_row",name:"Explosive Chest-Supported Row",sets:3,reps:"5-6",rest:"90-120s"},
+{id:"battle_rope",name:"Battle Ropes or Light Sled Push",sets:1,reps:"8-10 min",rest:"as needed",note:"Short finisher only. Do not turn this into leg day."}
+]},
+"8":{title:"Day 8: VO2max Conditioning",type:"cardio",desc:"High-intensity conditioning",protocol:"Start with 4 x 4 minutes at 90-95% HRmax with 3 minutes easy recovery. Choose rower, incline treadmill, bike, or elliptical based on knee and leg recovery. Stop if legs are still beat up."},
+"9":{title:"Day 9: Rest / Complete Recovery",type:"rest",desc:"Full recovery",protocol:"No lifting. Easy walk only if you want. Sleep, food, mobility, and readiness for Day 1."}
+};
+const KEY="hybrid_phase3_growth_fitness_v1";let state={cycle:"1",day:"1",data:{}};
+function renderNav(){const nav=document.getElementById("nav");nav.innerHTML="";for(let i=1;i<=9;i++){const b=document.createElement("button");b.innerText=`Day ${i}`;const t=exercises[String(i)].type;b.className="day-btn"+(t==="rest"?" rest":(t==="cardio"?" cardio":""));b.onclick=()=>{state.day=String(i);render()};nav.appendChild(b)}}
+function getID(exID){return `c${state.cycle}_d${state.day}_${exID}`}
+function render(){const app=document.getElementById("app");app.innerHTML="";state.cycle=document.getElementById("cycleSelect").value;document.querySelectorAll(".day-btn").forEach(b=>{b.classList.remove("active");if(b.innerText===`Day ${state.day}`)b.classList.add("active")});const dayData=exercises[state.day];const h2=document.createElement("h2");h2.innerText=dayData.title;h2.style.color=dayData.type==="lift"?"var(--primary)":(dayData.type==="rest"?"var(--rest)":"var(--cardio)");app.appendChild(h2);if(dayData.type!=="lift"){app.innerHTML+=`<div class="banner ${dayData.type}"><div><strong>${dayData.desc}</strong><br>${dayData.protocol}</div></div>`;return}if(dayData.banner)app.innerHTML+=`<div class="banner"><div>${dayData.banner}</div></div>`;dayData.list.forEach(ex=>{const current=state.data[getID(ex.id)]||{};const currentNote=current.note||ex.note||"";const currentSets=current.sets||[];const count=currentSets.length||ex.sets;let setsHtml=`<div class="set-grid"><span>#</span><span>LBS</span><span>REPS</span><span>RPE</span><span>DS</span><span>✓</span></div>`;for(let i=0;i<count;i++){const s=currentSets[i]||{};setsHtml+=`<div class="set-grid row" data-id="${ex.id}"><span>${i+1}</span><input type="number" class="w" value="${s.w||""}" placeholder="-" oninput="save(true)"><input type="number" class="r" value="${s.r||""}" placeholder="-" oninput="save(true)"><input type="number" class="rpe" value="${s.rpe||""}" placeholder="-" oninput="save(true)"><input type="checkbox" class="inp-check inp-ds" ${s.ds?"checked":""} onchange="save(true)"><input type="checkbox" class="inp-check inp-done" ${s.done?"checked":""} onchange="save(true)"></div>`}const div=document.createElement("div");div.className="exercise-card";div.innerHTML=`<div class="ex-header"><div><span class="ex-name">${ex.name}</span><span class="ex-meta">${ex.sets} sets • ${ex.reps} reps</span></div><div class="ex-rest">${ex.rest||"2m"}</div></div><div id="sets-${ex.id}">${setsHtml}</div><textarea id="note-${ex.id}" class="ex-note" placeholder="Notes..." oninput="save(true)">${currentNote}</textarea>`;app.appendChild(div)})}
+function save(isAuto=false){const dayData=exercises[state.day];if(dayData.type==="lift"){dayData.list.forEach(ex=>{const rows=document.querySelectorAll(`.row[data-id="${ex.id}"]`);const sets=[];rows.forEach(r=>{sets.push({w:r.querySelector(".w")?.value||"",r:r.querySelector(".r")?.value||"",rpe:r.querySelector(".rpe")?.value||"",ds:!!r.querySelector(".inp-ds")?.checked,done:!!r.querySelector(".inp-done")?.checked})});state.data[getID(ex.id)]={sets,note:document.getElementById(`note-${ex.id}`)?.value||""}})}state.data.lastActiveDay=state.day;localStorage.setItem(KEY,JSON.stringify(state.data));const status=document.getElementById("saveStatus");const now=new Date();const time=now.getHours()+":"+String(now.getMinutes()).padStart(2,"0");status.textContent=`${isAuto?"Auto-saved":"Saved"} locally at ${time}`}
+window.render=render;window.save=save;const stored=localStorage.getItem(KEY);if(stored){try{state.data=JSON.parse(stored)}catch{}}renderNav();render();setInterval(()=>save(true),10000);
+</script>
+</body>
+</html>
